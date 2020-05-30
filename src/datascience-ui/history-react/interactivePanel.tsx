@@ -33,6 +33,7 @@ export class InteractivePanel extends React.Component<IInteractivePanelProps> {
     private contentPanelRef: React.RefObject<ContentPanel> = React.createRef<ContentPanel>();
     private renderCount: number = 0;
     private internalScrollCount: number = 0;
+    private hasFocus: boolean = false;
 
     constructor(props: IInteractivePanelProps) {
         super(props);
@@ -260,6 +261,7 @@ ${buildSettingsCss(this.props.settings)}`}</style>
         // tslint:disable-next-line: no-console
         console.log(`Document has focus: ${document.hasFocus().toString()}`);
         // tslint:disable-next-line: no-console
+        console.log(`State has focus: ${this.hasFocus.toString()}`);
         return (
             <div className={editPanelClass}>
                 <ErrorBoundary>
@@ -268,7 +270,7 @@ ${buildSettingsCss(this.props.settings)}`}</style>
                         editorOptions={this.props.editorOptions}
                         maxTextSize={undefined}
                         enableScroll={false}
-                        autoFocus={document.hasFocus()}
+                        autoFocus={this.hasFocus}
                         testMode={this.props.testMode}
                         cellVM={this.props.editCellVM}
                         baseTheme={baseTheme}
@@ -403,11 +405,13 @@ ${buildSettingsCss(this.props.settings)}`}</style>
     private focusPanel = (ev: FocusEvent) => {
         // tslint:disable-next-line: no-console
         console.log(`Panel was focused with event ${JSON.stringify(ev)}\n`);
+        this.hasFocus = true;
     };
 
     private unfocusPanel = (ev: FocusEvent) => {
         // tslint:disable-next-line: no-console
         console.log(`Panel was unfocused with event ${JSON.stringify(ev)}\n`);
+        this.hasFocus = false;
     };
 }
 
