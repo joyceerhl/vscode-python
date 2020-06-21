@@ -88,6 +88,7 @@ export class CommandRegistry implements IDisposable {
                 listener.register(this.commandManager);
             });
         }
+        this.registerCommand(Commands.TrustNotebook, this.trustNotebook);
     }
     public dispose() {
         this.disposables.forEach((d) => d.dispose());
@@ -349,6 +350,11 @@ export class CommandRegistry implements IDisposable {
 
     private async createNewNotebook(): Promise<void> {
         await this.notebookEditorProvider.createNew();
+    }
+
+    private async trustNotebook(): Promise<void> {
+        // trust notebook
+        // await this.trustService.trustNotebook();
     }
 
     private async openStartPage(): Promise<void> {

@@ -90,6 +90,7 @@ export namespace Commands {
     export const GatherQuality = 'python.datascience.gatherquality';
     export const EnableLoadingWidgetsFrom3rdPartySource =
         'python.datascience.enableLoadingWidgetScriptsFromThirdPartySource';
+    export const TrustNotebook = 'python.datascience.trustnotebook';
 }
 
 export namespace CodeLensCommands {
