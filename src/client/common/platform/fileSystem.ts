@@ -200,11 +200,17 @@ export class RawFileSystem implements IRawFileSystem {
         return Buffer.from(data);
     }
 
-    public async readText(filename: string): Promise<string> {
-        const uri = vscode.Uri.file(filename);
-        const result = await this.vscfs.readFile(uri);
-        const data = Buffer.from(result);
-        return data.toString(ENCODING);
+    public async readText(filename: string, uriObject?: vscode.Uri): Promise<string> {
+        if (uriObject) {
+            const result = await this.vscfs.readFile(uriObject);
+            const data = Buffer.from(result);
+            return data.toString(ENCODING);
+        } else {
+            const uri = vscode.Uri.file(filename);
+            const result = await this.vscfs.readFile(uri);
+            const data = Buffer.from(result);
+            return data.toString(ENCODING);
+        }
     }
 
     public async writeText(filename: string, text: string): Promise<void> {
@@ -525,8 +531,8 @@ export class FileSystem implements IFileSystem {
     public async listdir(dirname: string): Promise<[string, FileType][]> {
         return this.utils.listdir(dirname);
     }
-    public async readFile(filePath: string): Promise<string> {
-        return this.utils.raw.readText(filePath);
+    public async readFile(filePath: string, uri?: vscode.Uri): Promise<string> {
+        return this.utils.raw.readText(filePath, uri);
     }
     public async readData(filePath: string): Promise<Buffer> {
         return this.utils.raw.readData(filePath);
