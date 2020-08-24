@@ -940,7 +940,7 @@
                 {
                     "command": "python.execSelectionInTerminal",
                     "group": "Python",
-                    "when": "editorFocus && editorLangId == python"
+                    "when": "editorFocus && editorLangId == python && !python.datascience.isnativeactive"
                 },
                 {
                     "command": "python.execSelectionInDjangoShell",
