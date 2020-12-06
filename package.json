@@ -1055,6 +1055,8 @@
                             "debuggerDataViewer",
                             "pythonSendEntireLineToREPL",
                             "nativeTensorBoard",
+                            "pythonTensorBoardCodeActions",
+                            "pythonTensorBoardCodeLenses",
                             "All"
                         ]
                     },
