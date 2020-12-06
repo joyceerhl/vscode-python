@@ -13,7 +13,7 @@ import { ITensorBoardImportTracker } from './types';
 // This is a modified version of the regex from src/client/telemetry/importTracker.ts
 // in order to match on imported submodules as well, since the original regex only
 // matches the 'main' module.
-const ImportRegEx = /^\s*from (?<fromImport>\w+(?:\.\w+)*) import (?<fromImportTarget>\w+(?:, \w+)*)(?: as \w+)?|import (?<importImport>\w+(?:, \w+)*)(?: as \w+)?$/;
+export const ImportRegEx = /^\s*from (?<fromImport>\w+(?:\.\w+)*) import (?<fromImportTarget>\w+(?:, \w+)*)(?: as \w+)?|import (?<importImport>\w+(?:, \w+)*)(?: as \w+)?$/;
 
 @injectable()
 export class TensorBoardImportTracker implements ITensorBoardImportTracker, IExtensionSingleActivationService {
