@@ -21,7 +21,7 @@ export class TensorBoardCodeLensProvider implements IExtensionSingleActivationSe
 
     public provideCodeLenses(document: TextDocument, _token: CancellationToken): CodeLens[] {
         const command: Command = {
-            title: 'Launch Native TensorBoard Session',
+            title: '▶ Launch Native TensorBoard Session',
             command: Commands.LaunchTensorBoard
         };
         const codelenses: CodeLens[] = [];
