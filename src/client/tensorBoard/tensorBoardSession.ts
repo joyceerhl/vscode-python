@@ -18,7 +18,7 @@ import {
     QuickPickItem,
     ViewColumn,
     WebviewPanel,
-    window
+    window,
 } from 'vscode';
 import { ICommandManager, IWorkspaceService } from '../common/application/types';
 import { createPromiseFromCancellation } from '../common/cancellation';
@@ -52,7 +52,7 @@ export class TensorBoardSession {
         private readonly interpreterService: IInterpreterService,
         private readonly workspaceService: IWorkspaceService,
         private readonly processServiceFactory: IProcessServiceFactory,
-        private readonly commandManager: ICommandManager
+        private readonly commandManager: ICommandManager,
     ) {}
 
     public async initialize(): Promise<void> {
@@ -88,11 +88,11 @@ export class TensorBoardSession {
         const cancellationPromise = createPromiseFromCancellation({
             cancelAction: 'resolve',
             defaultValue: InstallerResponse.Ignore,
-            token: installerToken
+            token: installerToken,
         });
         const response = await Promise.race([
             this.installer.promptToInstall(Product.tensorboard, interpreter, installerToken),
-            cancellationPromise
+            cancellationPromise,
         ]);
         if (response === InstallerResponse.Failed) {
             throw new Error(TensorBoard.installFailed());
@@ -104,7 +104,7 @@ export class TensorBoardSession {
         const selection = await window.showOpenDialog({
             canSelectFiles: false,
             canSelectFolders: true,
-            canSelectMany: false
+            canSelectMany: false,
         });
         // If the user selected a folder, return the uri.fsPath
         // There will only be one selection since canSelectMany: false
@@ -118,11 +118,11 @@ export class TensorBoardSession {
         if (logDir) {
             const useCwd = {
                 label: TensorBoard.useCurrentWorkingDirectory(),
-                detail: TensorBoard.useCurrentWorkingDirectoryDetail()
+                detail: TensorBoard.useCurrentWorkingDirectoryDetail(),
             };
             const selectAnotherFolder = {
                 label: TensorBoard.selectAnotherFolder(),
-                detail: TensorBoard.selectAnotherFolderDetail()
+                detail: TensorBoard.selectAnotherFolderDetail(),
             };
             return [useCwd, selectAnotherFolder];
         }
@@ -187,7 +187,7 @@ export class TensorBoardSession {
         const progressOptions: ProgressOptions = {
             title: TensorBoard.progressMessage(),
             location: ProgressLocation.Notification,
-            cancellable: true
+            cancellable: true,
         };
 
         const processService = await this.processServiceFactory.create();
@@ -203,11 +203,11 @@ export class TensorBoardSession {
                 const userCancellation = createPromiseFromCancellation({
                     token,
                     cancelAction: 'resolve',
-                    defaultValue: 'canceled'
+                    defaultValue: 'canceled',
                 });
 
                 return Promise.race([sleep(timeout), spawnTensorBoard, userCancellation]);
-            }
+            },
         );
 
         switch (result) {
@@ -241,7 +241,7 @@ export class TensorBoardSession {
             },
             error: (err) => {
                 traceError(err);
-            }
+            },
         });
 
         return urlThatTensorBoardIsRunningAt.promise;
@@ -255,7 +255,7 @@ export class TensorBoardSession {
 
     private createPanel() {
         const webviewPanel = window.createWebviewPanel('tensorBoardSession', 'TensorBoard', ViewColumn.Two, {
-            enableScripts: true
+            enableScripts: true,
         });
         this.webviewPanel = webviewPanel;
         webviewPanel.onDidDispose(() => {
