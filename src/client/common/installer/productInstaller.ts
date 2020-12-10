@@ -618,12 +618,16 @@ export class TensorBoardInstaller extends DataScienceInstaller {
             return InstallerResponse.Ignore;
         }
 
-        await installerModule
-            .installModule('tb-nightly', interpreter, cancel)
-            .catch((ex) => traceError(`Error in installing the module '${moduleName}'`, ex));
+        try {
+            await installerModule
+                .installModule('tb-nightly', interpreter, cancel)
+                .catch((ex) => traceError(`Error in installing the module '${moduleName}'`, ex));
+        } catch (e) {
+            return InstallerResponse.Failed;
+        }
 
         return this.isInstalled(product, interpreter).then((isInstalled) =>
-            isInstalled ? InstallerResponse.Installed : InstallerResponse.Failed
+            isInstalled ? InstallerResponse.Installed : InstallerResponse.Ignore
         );
     }
 }
