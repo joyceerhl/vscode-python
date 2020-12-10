@@ -582,6 +582,50 @@ export class TensorBoardInstaller extends DataScienceInstaller {
         const selection = await this.appShell.showErrorMessage(TensorBoard.installPrompt(), ...[yes, no]);
         return selection === yes ? this.install(product, resource, cancel) : InstallerResponse.Ignore;
     }
+
+    // Temporarily override the DataScience install method in order to install the nightly
+    // version of tensorboard, tb-nightly. This is because tb-nightly contains some fixes
+    // required for tensorboard to work in VS Code which are not
+    public async install(
+        product: Product,
+        interpreterUri?: InterpreterUri,
+        cancel?: CancellationToken
+    ): Promise<InstallerResponse> {
+        // Precondition
+        if (isResource(interpreterUri)) {
+            throw new Error('All data science packages require an interpreter be passed in');
+        }
+
+        // At this point we know that `interpreterUri` is of type PythonInterpreter
+        const interpreter = interpreterUri as PythonEnvironment;
+
+        // Get a list of known installation channels, pip, conda, etc.
+        const channels: IModuleInstaller[] = await this.serviceContainer
+            .get<IInstallationChannelManager>(IInstallationChannelManager)
+            .getInstallationChannels();
+
+        // This is temporary just for the insiders package tb-nightly
+        // since it isn't available via conda install channels
+        const installerModule = channels.find((v) => v.name === 'Pip');
+
+        // if (interpreter.envType === 'Conda') {
+        //     installerModule = channels.find((v) => v.name === 'Conda');
+        // }
+
+        const moduleName = translateProductToModule(product, ModuleNamePurpose.install);
+        if (!installerModule) {
+            this.appShell.showErrorMessage(Installer.couldNotInstallLibrary().format(moduleName)).then(noop, noop);
+            return InstallerResponse.Ignore;
+        }
+
+        await installerModule
+            .installModule('tb-nightly', interpreter, cancel)
+            .catch((ex) => traceError(`Error in installing the module '${moduleName}'`, ex));
+
+        return this.isInstalled(product, interpreter).then((isInstalled) =>
+            isInstalled ? InstallerResponse.Installed : InstallerResponse.Failed
+        );
+    }
 }
 
 @injectable()
