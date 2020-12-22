@@ -1,5 +1,3 @@
-// tslint:disable:no-require-imports no-var-requires no-unnecessary-callback-wrapper
-// tslint:disable-next-line:no-single-line-block-comment
 /* eslint-disable max-classes-per-file */
 
 import { inject, injectable } from 'inversify';
@@ -34,7 +32,7 @@ export class KnownPathsService extends CacheableLocatorService {
      *
      * Called by VS Code to indicate it is done with the resource.
      */
-    // tslint:disable:no-empty
+
     // eslint-disable-next-line
     public dispose(): void {
         // No body
@@ -57,15 +55,13 @@ export class KnownPathsService extends CacheableLocatorService {
         const promises = this.knownSearchPaths.getSearchPaths().map((dir) => this.getInterpretersInDirectory(dir));
         return Promise.all<string[]>(promises)
             .then((listOfInterpreters) => flatten(listOfInterpreters))
-            .then((interpreters) => interpreters.filter(
-                (item) => item.length > 0,
-            ))
-            .then((interpreters) => Promise.all(
-                interpreters.map((interpreter) => this.getInterpreterDetails(interpreter)),
-            ))
-            .then((interpreters) => interpreters.filter(
-                (interpreter) => !!interpreter,
-            ).map((interpreter) => interpreter!));
+            .then((interpreters) => interpreters.filter((item) => item.length > 0))
+            .then((interpreters) =>
+                Promise.all(interpreters.map((interpreter) => this.getInterpreterDetails(interpreter))),
+            )
+            .then((interpreters) =>
+                interpreters.filter((interpreter) => !!interpreter).map((interpreter) => interpreter!),
+            );
     }
 
     /**
@@ -117,7 +113,7 @@ export class KnownSearchPathsForInterpreters implements IKnownSearchPathsForInte
                 searchPaths.push(path.join(pathUtils.home, p));
             });
             // Add support for paths such as /Users/xxx/anaconda/bin.
-            if (pathUtils.home && pathUtils.home !== '') {
+            if (process.env.HOME) {
                 searchPaths.push(path.join(pathUtils.home, 'anaconda', 'bin'));
                 searchPaths.push(path.join(pathUtils.home, 'python', 'bin'));
             }

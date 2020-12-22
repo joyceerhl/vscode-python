@@ -47,12 +47,12 @@ const testExecution = isTestExecution();
 export class ImportTracker implements IExtensionSingleActivationService {
     private pendingChecks = new Map<string, NodeJS.Timer>();
     private sentMatches: Set<string> = new Set<string>();
-    // tslint:disable-next-line:no-require-imports
+
     private hashFn = require('hash.js').sha256;
 
     constructor(
         @inject(IDocumentManager) private documentManager: IDocumentManager,
-        @inject(IDisposableRegistry) private disposables: IDisposableRegistry
+        @inject(IDisposableRegistry) private disposables: IDisposableRegistry,
     ) {
         this.documentManager.onDidOpenTextDocument((t) => this.onOpenedOrSavedDocument(t), this, this.disposables);
         this.documentManager.onDidSaveTextDocument((t) => this.onOpenedOrSavedDocument(t), this, this.disposables);

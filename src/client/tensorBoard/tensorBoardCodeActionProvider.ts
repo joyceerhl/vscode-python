@@ -2,16 +2,7 @@
 // Licensed under the MIT License.
 
 import { inject, injectable } from 'inversify';
-import {
-    CancellationToken,
-    CodeAction,
-    CodeActionContext,
-    CodeActionKind,
-    CodeActionProvider,
-    languages,
-    Selection,
-    TextDocument
-} from 'vscode';
+import { CodeAction, CodeActionKind, CodeActionProvider, languages, Selection, TextDocument } from 'vscode';
 import { IExtensionSingleActivationService } from '../activation/types';
 import { Commands, PYTHON } from '../common/constants';
 import { NativeTensorBoard, NativeTensorBoardEntrypoints } from '../common/experiments/groups';
@@ -23,7 +14,7 @@ import { containsTensorBoardImport } from './helpers';
 export class TensorBoardCodeActionProvider implements CodeActionProvider, IExtensionSingleActivationService {
     constructor(
         @inject(IExperimentService) private experimentService: IExperimentService,
-        @inject(IDisposableRegistry) private disposables: IDisposableRegistry
+        @inject(IDisposableRegistry) private disposables: IDisposableRegistry,
     ) {}
 
     public async activate(): Promise<void> {
@@ -32,12 +23,7 @@ export class TensorBoardCodeActionProvider implements CodeActionProvider, IExten
     }
 
     // eslint-disable-next-line class-methods-use-this
-    public provideCodeActions(
-        document: TextDocument,
-        range: Selection,
-        _context: CodeActionContext,
-        _token: CancellationToken
-    ): CodeAction[] {
+    public provideCodeActions(document: TextDocument, range: Selection): CodeAction[] {
         const cursorPosition = range.active;
         const { text } = document.lineAt(cursorPosition);
         if (containsTensorBoardImport([text])) {
@@ -45,7 +31,7 @@ export class TensorBoardCodeActionProvider implements CodeActionProvider, IExten
             const nativeTensorBoardSession = new CodeAction(title, CodeActionKind.QuickFix);
             nativeTensorBoardSession.command = {
                 title,
-                command: Commands.LaunchTensorBoard
+                command: Commands.LaunchTensorBoard,
             };
             return [nativeTensorBoardSession];
         }
@@ -59,8 +45,8 @@ export class TensorBoardCodeActionProvider implements CodeActionProvider, IExten
         ) {
             this.disposables.push(
                 languages.registerCodeActionsProvider(PYTHON, this, {
-                    providedCodeActionKinds: [CodeActionKind.QuickFix]
-                })
+                    providedCodeActionKinds: [CodeActionKind.QuickFix],
+                }),
             );
         }
     }

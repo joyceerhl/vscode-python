@@ -20,7 +20,7 @@ import {
     SymbolInformation,
     TextEdit,
     Uri,
-    WorkspaceEdit
+    WorkspaceEdit,
 } from 'vscode';
 import {
     ConfigurationParams,
@@ -29,7 +29,7 @@ import {
     HandlerResult,
     LanguageClient,
     Middleware,
-    ResponseError
+    ResponseError,
 } from 'vscode-languageclient/node';
 import { IJupyterExtensionDependencyManager, IVSCodeNotebook } from '../common/application/types';
 
@@ -63,11 +63,10 @@ export class LanguageClientMiddleware implements Middleware {
     public eventCount: number = 0;
 
     public workspace = {
-        // tslint:disable:no-any
         configuration: (
             params: ConfigurationParams,
             token: CancellationToken,
-            next: ConfigurationRequest.HandlerSignature
+            next: ConfigurationRequest.HandlerSignature,
         ): HandlerResult<any[], void> => {
             const configService = this.serviceContainer.get<IConfigurationService>(IConfigurationService);
 
@@ -96,8 +95,7 @@ export class LanguageClientMiddleware implements Middleware {
             }
 
             return addPythonPath(result);
-        }
-        // tslint:enable:no-any
+        },
     };
     private notebookAddon: NotebookMiddlewareAddon | undefined;
 
@@ -107,7 +105,7 @@ export class LanguageClientMiddleware implements Middleware {
         readonly serviceContainer: IServiceContainer,
         serverType: LanguageServerType,
         getClient: () => LanguageClient | undefined,
-        public readonly serverVersion?: string
+        public readonly serverVersion?: string,
     ) {
         this.handleDiagnostics = this.handleDiagnostics.bind(this); // VS Code calls function without context.
         this.didOpen = this.didOpen.bind(this);
@@ -131,7 +129,7 @@ export class LanguageClientMiddleware implements Middleware {
 
         const experimentsManager = this.serviceContainer.get<IExperimentsManager>(IExperimentsManager);
         const jupyterDependencyManager = this.serviceContainer.get<IJupyterExtensionDependencyManager>(
-            IJupyterExtensionDependencyManager
+            IJupyterExtensionDependencyManager,
         );
         const notebookApi = this.serviceContainer.get<IVSCodeNotebook>(IVSCodeNotebook);
         const disposables = this.serviceContainer.get<IDisposableRegistry>(IDisposableRegistry) || [];
@@ -149,7 +147,7 @@ export class LanguageClientMiddleware implements Middleware {
                 getClient,
                 fileSystem,
                 PYTHON_LANGUAGE,
-                /.*\.ipynb/m
+                /.*\.ipynb/m,
             );
         }
         disposables.push(
@@ -163,11 +161,11 @@ export class LanguageClientMiddleware implements Middleware {
                             getClient,
                             fileSystem,
                             PYTHON_LANGUAGE,
-                            /.*\.ipynb/m
+                            /.*\.ipynb/m,
                         );
                     }
                 }
-            })
+            }),
         );
     }
 
@@ -369,7 +367,7 @@ export class LanguageClientMiddleware implements Middleware {
         // middleware, it calls into the notebook middleware first.
         if (this.notebookAddon) {
             // It would be nice to use args.callee, but not supported in strict mode
-            // tslint:disable-next-line: no-any
+
             return (this.notebookAddon as any)[funcName](...args);
         } else {
             return args[args.length - 1](...args);
@@ -378,11 +376,9 @@ export class LanguageClientMiddleware implements Middleware {
 }
 
 function captureTelemetryForLSPMethod(method: string, debounceMilliseconds: number) {
-    // tslint:disable-next-line:no-function-expression no-any
     return function (_target: Object, _propertyKey: string, descriptor: TypedPropertyDescriptor<any>) {
         const originalMethod = descriptor.value;
 
-        // tslint:disable-next-line:no-any
         descriptor.value = function (this: LanguageClientMiddleware, ...args: any[]) {
             const eventName = this.eventName;
             if (!eventName) {
@@ -413,14 +409,13 @@ function captureTelemetryForLSPMethod(method: string, debounceMilliseconds: numb
 
             const properties = {
                 lsVersion: this.serverVersion || 'unknown',
-                method: formattedMethod
+                method: formattedMethod,
             };
 
             const stopWatch = new StopWatch();
-            // tslint:disable-next-line:no-unsafe-any
+
             const result = originalMethod.apply(this, args);
 
-            // tslint:disable-next-line:no-unsafe-any
             if (result && isThenable<void>(result)) {
                 result.then(() => {
                     sendTelemetryEvent(eventName, stopWatch.elapsedTime, properties);

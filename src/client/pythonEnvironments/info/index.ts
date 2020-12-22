@@ -23,7 +23,7 @@ export enum EnvironmentType {
     Poetry = 'Poetry',
     VirtualEnvWrapper = 'VirtualEnvWrapper',
     Global = 'Global',
-    System = 'System'
+    System = 'System',
 }
 
 type ReleaseLevel = 'alpha' | 'beta' | 'candidate' | 'final' | 'unknown';
@@ -173,7 +173,7 @@ export function updateEnvironment(environment: PartialPythonEnvironment, other: 
     ];
     props.forEach((prop) => {
         if (!environment[prop] && other[prop]) {
-            // tslint:disable-next-line: no-any
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             (environment as any)[prop] = other[prop];
         }
     });

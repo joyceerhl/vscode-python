@@ -27,7 +27,6 @@ import { IServiceContainer } from '../../../client/ioc/types';
 import * as EnvFileTelemetry from '../../../client/telemetry/envFileTelemetry';
 import { noop } from '../../core';
 
-// tslint:disable:no-any max-func-body-length
 suite('Multiroot Environment Variables Provider', () => {
     let provider: EnvironmentVariablesProvider;
     let envVarsService: IEnvironmentVariablesService;
@@ -56,7 +55,7 @@ suite('Multiroot Environment Variables Provider', () => {
             instance(workspace),
             instance(configuration),
             instance(currentProcess),
-            instance(serviceContainer)
+            instance(serviceContainer),
         );
 
         sinon.stub(EnvFileTelemetry, 'sendFileCreationTelemetry').returns();
@@ -79,7 +78,7 @@ suite('Multiroot Environment Variables Provider', () => {
         const changedEvent: ConfigurationChangeEvent = {
             affectsConfiguration(setting: string, uri?: Uri) {
                 return setting === 'python.envFile' && uri!.fsPath === workspaceFolder1Uri.fsPath;
-            }
+            },
         };
 
         provider.configurationChanged(changedEvent);
@@ -96,7 +95,7 @@ suite('Multiroot Environment Variables Provider', () => {
         const changedEvent: ConfigurationChangeEvent = {
             affectsConfiguration(_setting: string, _uri?: Uri) {
                 return false;
-            }
+            },
         };
 
         provider.configurationChanged(changedEvent);
@@ -109,7 +108,7 @@ suite('Multiroot Environment Variables Provider', () => {
         const changedEvent: ConfigurationChangeEvent = {
             affectsConfiguration(_setting: string, _uri?: Uri) {
                 return true;
-            }
+            },
         };
 
         provider.configurationChanged(changedEvent);
@@ -312,7 +311,7 @@ suite('Multiroot Environment Variables Provider', () => {
                 instance(configuration),
                 instance(currentProcess),
                 instance(serviceContainer),
-                100
+                100,
             );
             const vars = await provider.getEnvironmentVariables(workspaceUri);
 

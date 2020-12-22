@@ -15,17 +15,11 @@ import { TensorBoardPrompt } from './tensorBoardPrompt';
 const testExecution = isTestExecution();
 @injectable()
 export class TensorBoardImportTracker implements IExtensionSingleActivationService {
-    private pendingChecks = new Map<string, NodeJS.Timer | number>();
-
     constructor(
         @inject(IDocumentManager) private documentManager: IDocumentManager,
         @inject(IDisposableRegistry) private disposables: IDisposableRegistry,
-        @inject(TensorBoardPrompt) private prompt: TensorBoardPrompt
+        @inject(TensorBoardPrompt) private prompt: TensorBoardPrompt,
     ) {}
-
-    public dispose(): void {
-        this.pendingChecks.clear();
-    }
 
     public async activate(): Promise<void> {
         if (testExecution) {
@@ -42,7 +36,7 @@ export class TensorBoardImportTracker implements IExtensionSingleActivationServi
         this.documentManager.onDidChangeActiveTextEditor(
             (e) => this.onChangedActiveTextEditor(e),
             this,
-            this.disposables
+            this.disposables,
         );
     }
 

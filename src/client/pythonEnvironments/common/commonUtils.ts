@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+import * as fsapi from 'fs-extra';
 import * as path from 'path';
 import { chain, iterable } from '../../common/utils/async';
 import { getOSType, OSType } from '../../common/utils/platform';
@@ -9,7 +10,6 @@ import { comparePythonVersionSpecificity } from '../base/info/env';
 import { parseVersion } from '../base/info/pythonVersion';
 import { getPythonVersionFromConda } from '../discovery/locators/services/condaLocator';
 import { getPythonVersionFromPyvenvCfg } from '../discovery/locators/services/virtualEnvironmentIdentifier';
-import { isDirectory, listDir } from './externalDependencies';
 import { isPosixPythonBin } from './posixUtils';
 import { isWindowsPythonExe } from './windowsUtils';
 
@@ -28,24 +28,16 @@ export async function* findInterpretersInDir(
     const checkBin = os === OSType.Windows ? isWindowsPythonExe : isPosixPythonBin;
     const itemFilter = filter ?? (() => true);
 
-    let dirContents: string[];
-    try {
-        dirContents = (await listDir(root))
-            .map((c) => path.join(root, c))
-            .filter(itemFilter);
-    } catch (err) {
-        // Treat a missing directory as empty.
-        if (err.code === 'ENOENT') {
-            return;
-        }
-        throw err; // re-throw
-    }
+    const dirContents = (await fsapi.readdir(root)).filter(itemFilter);
 
-    const generators = dirContents.map((fullPath) => {
+    const generators = dirContents.map((item) => {
         async function* generator() {
-            if (await isDirectory(fullPath)) {
+            const fullPath = path.join(root, item);
+            const stat = await fsapi.lstat(fullPath);
+
+            if (stat.isDirectory()) {
                 if (recurseLevels && recurseLevels > 0) {
-                    yield* findInterpretersInDir(fullPath, recurseLevels - 1, filter);
+                    yield* findInterpretersInDir(fullPath, recurseLevels - 1);
                 }
             } else if (checkBin(fullPath)) {
                 yield fullPath;
@@ -62,7 +54,7 @@ export async function* findInterpretersInDir(
  * Looks for files in the same directory which might have version in their name.
  * @param interpreterPath
  */
-export async function getPythonVersionFromNearByFiles(interpreterPath:string): Promise<PythonVersion> {
+export async function getPythonVersionFromNearByFiles(interpreterPath: string): Promise<PythonVersion> {
     const root = path.dirname(interpreterPath);
     let version = UNKNOWN_PYTHON_VERSION;
     for await (const interpreter of findInterpretersInDir(root)) {
@@ -121,9 +113,9 @@ export function isStandardPythonBinary(executable: string): boolean {
  * environment directory.
  * @param envDir Absolute path to the environment directory
  */
-export async function getInterpreterPathFromDir(envDir: string): Promise<string|undefined> {
+export async function getInterpreterPathFromDir(envDir: string): Promise<string | undefined> {
     // Ignore any folders or files that not directly python binary related.
-    function filter(str:string):boolean {
+    function filter(str: string): boolean {
         const lower = str.toLowerCase();
         return ['bin', 'scripts'].includes(lower) || lower.search('python') >= 0;
     }
@@ -142,7 +134,7 @@ export async function getInterpreterPathFromDir(envDir: string): Promise<string|
  *  interpreter binary.
  * @param interpreterPath Absolute path to the python interpreter
  */
-export function getEnvironmentDirFromPath(interpreterPath:string): string {
+export function getEnvironmentDirFromPath(interpreterPath: string): string {
     const skipDirs = ['bin', 'scripts'];
 
     // env <--- Return this directory if it is not 'bin' or 'scripts'

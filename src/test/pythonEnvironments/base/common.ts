@@ -1,15 +1,11 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-// tslint:disable: no-this-assignment
-
 import { expect } from 'chai';
 import * as path from 'path';
 import { Event } from 'vscode';
-import {
-    createDeferred, flattenIterator, iterable, mapToIterator,
-} from '../../../client/common/utils/async';
-import { getArchitecture } from '../../../client/common/utils/platform';
+import { createDeferred, flattenIterator, iterable, mapToIterator } from '../../../client/common/utils/async';
+import { Architecture } from '../../../client/common/utils/platform';
 import { getVersionString } from '../../../client/common/utils/version';
 import {
     PythonDistroInfo,
@@ -18,10 +14,7 @@ import {
     PythonExecutableInfo,
 } from '../../../client/pythonEnvironments/base/info';
 import { buildEnvInfo } from '../../../client/pythonEnvironments/base/info/env';
-import {
-    getEmptyVersion,
-    parseVersion,
-} from '../../../client/pythonEnvironments/base/info/pythonVersion';
+import { parseVersion } from '../../../client/pythonEnvironments/base/info/pythonVersion';
 import {
     IPythonEnvsIterator,
     Locator,
@@ -41,17 +34,19 @@ export function createLocatedEnv(
     let executable: string | undefined;
     if (typeof exec === 'string') {
         const normalizedExecutable = path.normalize(exec);
-        executable = location === '' || path.isAbsolute(normalizedExecutable)
-            ? normalizedExecutable
-            : path.join(location, 'bin', normalizedExecutable);
+        executable =
+            location === '' || path.isAbsolute(normalizedExecutable)
+                ? normalizedExecutable
+                : path.join(location, 'bin', normalizedExecutable);
     }
-    const version = versionStr === ''
-        ? getEmptyVersion()
-        : parseVersion(versionStr);
+    const version = parseVersion(versionStr);
     const env = buildEnvInfo({
-        kind, executable, location, version,
+        kind,
+        executable,
+        location,
+        version,
     });
-    env.arch = getArchitecture();
+    env.arch = Architecture.x86;
     env.distro = distro;
     if (typeof exec !== 'string') {
         env.executable = exec;
@@ -132,7 +127,7 @@ export class SimpleLocator extends Locator {
                 await callbacks.after;
             }
             deferred.resolve();
-        }());
+        })();
         iterator.onUpdated = this.callbacks?.onUpdated;
         return iterator;
     }
@@ -141,7 +136,8 @@ export class SimpleLocator extends Locator {
         const envInfo: PythonEnvInfo = typeof env === 'string' ? createLocatedEnv('', '', undefined, env) : env;
         if (this.callbacks.resolve === undefined) {
             return envInfo;
-        } if (this.callbacks?.resolve === null) {
+        }
+        if (this.callbacks?.resolve === null) {
             return undefined;
         }
         return this.callbacks.resolve(envInfo);
@@ -153,13 +149,11 @@ export async function getEnvs(iterator: IPythonEnvsIterator): Promise<PythonEnvI
 }
 
 export function sortedEnvs(envs: PythonEnvInfo[]): PythonEnvInfo[] {
-    return envs.sort(
-        (env1, env2) => {
-            const env1str = `${env1.kind}-${env1.executable.filename}-${getVersionString(env1.version)}`;
-            const env2str = `${env2.kind}-${env2.executable.filename}-${getVersionString(env2.version)}`;
-            return env1str.localeCompare(env2str);
-        },
-    );
+    return envs.sort((env1, env2) => {
+        const env1str = `${env1.kind}-${env1.executable.filename}-${getVersionString(env1.version)}`;
+        const env2str = `${env2.kind}-${env2.executable.filename}-${getVersionString(env2.version)}`;
+        return env1str.localeCompare(env2str);
+    });
 }
 
 export function assertSameEnvs(envs: PythonEnvInfo[], expected: PythonEnvInfo[]): void {

@@ -9,7 +9,7 @@ import { IExperimentService, IPersistentState, IPersistentStateFactory } from '.
 import { Common, TensorBoard } from '../common/utils/localize';
 
 enum TensorBoardPromptStateKeys {
-    ShowNativeTensorBoardPrompt = 'showNativeTensorBoardPrompt'
+    ShowNativeTensorBoardPrompt = 'showNativeTensorBoardPrompt',
 }
 
 @injectable()
@@ -28,11 +28,11 @@ export class TensorBoardPrompt {
         @inject(IApplicationShell) private applicationShell: IApplicationShell,
         @inject(ICommandManager) private commandManager: ICommandManager,
         @inject(IPersistentStateFactory) private persistentStateFactory: IPersistentStateFactory,
-        @inject(IExperimentService) private experimentService: IExperimentService
+        @inject(IExperimentService) private experimentService: IExperimentService,
     ) {
         this.state = this.persistentStateFactory.createWorkspacePersistentState<boolean>(
             TensorBoardPromptStateKeys.ShowNativeTensorBoardPrompt,
-            true
+            true,
         );
         this.enabled = this.isPromptEnabled();
         this.inExperiment = this.isInExperiment();
@@ -52,7 +52,7 @@ export class TensorBoardPrompt {
             this.waitingForUserSelection = true;
             const selection = await this.applicationShell.showInformationMessage(
                 TensorBoard.nativeTensorBoardPrompt(),
-                ...options
+                ...options,
             );
             this.waitingForUserSelection = false;
             this.enabledInCurrentSession = false;

@@ -14,27 +14,28 @@ import { TensorBoardTerminalListener } from './tensorBoardTerminalListener';
 export function registerTypes(serviceManager: IServiceManager): void {
     serviceManager.addSingleton<IExtensionSingleActivationService>(
         IExtensionSingleActivationService,
-        TensorBoardSessionProvider
+        TensorBoardSessionProvider,
     );
     serviceManager.addSingleton<IExtensionSingleActivationService>(
         IExtensionSingleActivationService,
-        TensorBoardFileWatcher
+        TensorBoardFileWatcher,
     );
     serviceManager.addSingleton<TensorBoardPrompt>(TensorBoardPrompt, TensorBoardPrompt);
     serviceManager.addSingleton<IExtensionSingleActivationService>(
         IExtensionSingleActivationService,
-        TensorBoardImportTracker
+        TensorBoardImportTracker,
+    );
+    serviceManager.addSingleton<TensorBoardTerminalListener>(
+        TensorBoardTerminalListener,
+        TensorBoardTerminalListener,
+    );
+    serviceManager.addBinding(TensorBoardTerminalListener, IExtensionSingleActivationService);
+    serviceManager.addSingleton<IExtensionSingleActivationService>(
+        IExtensionSingleActivationService,
+        TensorBoardCodeLensProvider,
     );
     serviceManager.addSingleton<IExtensionSingleActivationService>(
         IExtensionSingleActivationService,
-        TensorBoardTerminalListener
-    );
-    serviceManager.addSingleton<IExtensionSingleActivationService>(
-        IExtensionSingleActivationService,
-        TensorBoardCodeLensProvider
-    );
-    serviceManager.addSingleton<IExtensionSingleActivationService>(
-        IExtensionSingleActivationService,
-        TensorBoardCodeActionProvider
+        TensorBoardCodeActionProvider,
     );
 }

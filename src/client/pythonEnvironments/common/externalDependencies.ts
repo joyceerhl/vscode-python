@@ -7,7 +7,6 @@ import * as vscode from 'vscode';
 import { ExecutionResult, IProcessServiceFactory, SpawnOptions } from '../../common/process/types';
 import { IExperimentService } from '../../common/types';
 import { chain, iterable } from '../../common/utils/async';
-import { normalizeFilename } from '../../common/utils/filesystem';
 import { getOSType, OSType } from '../../common/utils/platform';
 import { IDisposable } from '../../common/utils/resourceLifecycle';
 import { IServiceContainer } from '../../ioc/types';
@@ -16,8 +15,6 @@ let internalServiceContainer: IServiceContainer;
 export function initializeExternalDependencies(serviceContainer: IServiceContainer): void {
     internalServiceContainer = serviceContainer;
 }
-
-// processes
 
 function getProcessFactory(): IProcessServiceFactory {
     return internalServiceContainer.get<IProcessServiceFactory>(IProcessServiceFactory);
@@ -32,8 +29,6 @@ export async function exec(file: string, args: string[], options: SpawnOptions =
     const proc = await getProcessFactory().create();
     return proc.exec(file, args, options);
 }
-
-// filesystem
 
 export function pathExists(absPath: string): Promise<boolean> {
     return fsapi.pathExists(absPath);
@@ -52,19 +47,6 @@ export function isParentPath(filePath: string, parentPath: string): boolean {
     return normCasePath(filePath).startsWith(normCasePath(parentPath));
 }
 
-export function listDir(dirname: string): Promise<string[]> {
-    return fsapi.readdir(dirname);
-}
-
-export async function isDirectory(filename: string): Promise<boolean> {
-    const stat = await fsapi.lstat(filename);
-    return stat.isDirectory();
-}
-
-export function normalizePath(filename: string): string {
-    return normalizeFilename(filename);
-}
-
 export function normCasePath(filePath: string): string {
     return getOSType() === OSType.Windows ? path.normalize(filePath).toUpperCase() : path.normalize(filePath);
 }
@@ -73,7 +55,7 @@ export function arePathsSame(path1: string, path2: string): boolean {
     return normCasePath(path1) === normCasePath(path2);
 }
 
-export async function getFileInfo(filePath: string): Promise<{ ctime: number, mtime: number }> {
+export async function getFileInfo(filePath: string): Promise<{ ctime: number; mtime: number }> {
     try {
         const data = await fsapi.lstat(filePath);
         return {
@@ -96,7 +78,7 @@ export async function resolveSymbolicLink(filepath: string): Promise<string> {
     return filepath;
 }
 
-export async function* getSubDirs(root:string): AsyncIterableIterator<string> {
+export async function* getSubDirs(root: string): AsyncIterableIterator<string> {
     const dirContents = await fsapi.readdir(root);
     const generators = dirContents.map((item) => {
         async function* generator() {

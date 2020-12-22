@@ -9,7 +9,7 @@ import {
     ObservableExecutionResult,
     Output,
     ShellOptions,
-    SpawnOptions
+    SpawnOptions,
 } from '../../client/common/process/types';
 import { noop } from '../core';
 
@@ -23,7 +23,7 @@ export class MockProcessService extends EventEmitter implements IProcessService 
         super();
     }
     public onExecObservable(
-        handler: (file: string, args: string[], options: SpawnOptions, callback: ExecObservableCallback) => void
+        handler: (file: string, args: string[], options: SpawnOptions, callback: ExecObservableCallback) => void,
     ) {
         this.on('execObservable', handler);
     }
@@ -39,21 +39,19 @@ export class MockProcessService extends EventEmitter implements IProcessService 
             const output = value as Output<string>;
             if (['stderr', 'stdout'].some((source) => source === output.source)) {
                 return {
-                    // tslint:disable-next-line:no-any
                     proc: {} as any,
                     out: Observable.of(output),
                     dispose: () => {
                         noop();
-                    }
+                    },
                 };
             } else {
                 return {
-                    // tslint:disable-next-line:no-any
                     proc: {} as any,
                     out: value as Observable<Output<string>>,
                     dispose: () => {
                         noop();
-                    }
+                    },
                 };
             }
         } else {

@@ -70,18 +70,7 @@ suite('TensorBoard import tracker', () => {
         const document = documentManager.addDocument(
             'import tensorflow as tf\nfrom torch.utils import foo',
             'foo.cpp',
-            'cpp'
-        );
-        await documentManager.showTextDocument(document);
-        await tensorBoardImportTracker.activate();
-        assert.ok(showNativeTensorBoardPrompt.notCalled);
-    });
-    test('Ignore docstrings', async () => {
-        const document = documentManager.addDocument(
-            `"""
-import tensorboard
-"""`,
-            'foo.py'
+            'cpp',
         );
         await documentManager.showTextDocument(document);
         await tensorBoardImportTracker.activate();

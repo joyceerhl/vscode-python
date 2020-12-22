@@ -12,14 +12,14 @@ import {
     QuickPickItem,
     ViewColumn,
     WebviewPanel,
-    window
+    window,
 } from 'vscode';
 import { ICommandManager, IWorkspaceService } from '../common/application/types';
 import { createPromiseFromCancellation } from '../common/cancellation';
 import { traceError, traceInfo } from '../common/logger';
 import { tensorboardLauncher } from '../common/process/internal/scripts';
 import { IProcessServiceFactory, ObservableExecutionResult } from '../common/process/types';
-import { IInstaller, InstallerResponse, Product } from '../common/types';
+import { IDisposableRegistry, IInstaller, InstallerResponse, Product } from '../common/types';
 import { createDeferred, sleep } from '../common/utils/async';
 import { TensorBoard } from '../common/utils/localize';
 import { IInterpreterService } from '../interpreter/contracts';
@@ -46,7 +46,8 @@ export class TensorBoardSession {
         private readonly interpreterService: IInterpreterService,
         private readonly workspaceService: IWorkspaceService,
         private readonly processServiceFactory: IProcessServiceFactory,
-        private readonly commandManager: ICommandManager
+        private readonly commandManager: ICommandManager,
+        private readonly disposables: IDisposableRegistry,
     ) {}
 
     public async initialize(): Promise<void> {
@@ -82,20 +83,21 @@ export class TensorBoardSession {
         const cancellationPromise = createPromiseFromCancellation({
             cancelAction: 'resolve',
             defaultValue: InstallerResponse.Ignore,
-            token: installerToken
+            token: installerToken,
         });
         const response = await Promise.race([
             this.installer.promptToInstall(Product.tensorboard, interpreter, installerToken),
-            cancellationPromise
+            cancellationPromise,
         ]);
         return response === InstallerResponse.Installed;
     }
 
+    // eslint-disable-next-line class-methods-use-this
     private async showFilePicker(): Promise<string | undefined> {
         const selection = await window.showOpenDialog({
             canSelectFiles: false,
             canSelectFolders: true,
-            canSelectMany: false
+            canSelectMany: false,
         });
         // If the user selected a folder, return the uri.fsPath
         // There will only be one selection since canSelectMany: false
@@ -105,21 +107,22 @@ export class TensorBoardSession {
         return undefined;
     }
 
+    // eslint-disable-next-line class-methods-use-this
     private getQuickPickItems(logDir: string | undefined) {
         if (logDir) {
             const useCwd = {
                 label: TensorBoard.useCurrentWorkingDirectory(),
-                detail: TensorBoard.useCurrentWorkingDirectoryDetail()
+                detail: TensorBoard.useCurrentWorkingDirectoryDetail(),
             };
             const selectAnotherFolder = {
                 label: TensorBoard.selectAnotherFolder(),
-                detail: TensorBoard.selectAnotherFolderDetail()
+                detail: TensorBoard.selectAnotherFolderDetail(),
             };
             return [useCwd, selectAnotherFolder];
         }
         const selectAFolder = {
             label: TensorBoard.selectAFolder(),
-            detail: TensorBoard.selectAFolderDetail()
+            detail: TensorBoard.selectAFolderDetail(),
         };
         return [selectAFolder];
     }
@@ -136,7 +139,7 @@ export class TensorBoardSession {
         const item = await window.showQuickPick(items, {
             canPickMany: false,
             ignoreFocusOut: false,
-            placeHolder: logDir ? TensorBoard.currentDirectory().format(logDir) : undefined
+            placeHolder: logDir ? TensorBoard.currentDirectory().format(logDir) : undefined,
         });
         switch (item?.label) {
             case useCurrentWorkingDirectory:
@@ -167,7 +170,7 @@ export class TensorBoardSession {
         const progressOptions: ProgressOptions = {
             title: TensorBoard.progressMessage(),
             location: ProgressLocation.Notification,
-            cancellable: true
+            cancellable: true,
         };
 
         const processService = await this.processServiceFactory.create();
@@ -183,11 +186,11 @@ export class TensorBoardSession {
                 const userCancellation = createPromiseFromCancellation({
                     token,
                     cancelAction: 'resolve',
-                    defaultValue: 'canceled'
+                    defaultValue: 'canceled',
                 });
 
                 return Promise.race([sleep(timeout), spawnTensorBoard, userCancellation]);
-            }
+            },
         );
 
         switch (result) {
@@ -223,7 +226,7 @@ export class TensorBoardSession {
             },
             error: (err) => {
                 traceError(err);
-            }
+            },
         });
 
         return urlThatTensorBoardIsRunningAt.promise;
@@ -237,7 +240,7 @@ export class TensorBoardSession {
 
     private createPanel() {
         const webviewPanel = window.createWebviewPanel('tensorBoardSession', 'TensorBoard', ViewColumn.Two, {
-            enableScripts: true
+            enableScripts: true,
         });
         this.webviewPanel = webviewPanel;
         webviewPanel.onDidDispose(() => {
@@ -246,11 +249,15 @@ export class TensorBoardSession {
             this.process?.kill();
             this.process = undefined;
         });
-        webviewPanel.onDidChangeViewState(() => {
-            if (webviewPanel.visible) {
-                this.update();
-            }
-        }, null);
+        webviewPanel.onDidChangeViewState(
+            () => {
+                if (webviewPanel.visible) {
+                    this.update();
+                }
+            },
+            undefined,
+            this.disposables,
+        );
         return webviewPanel;
     }
 
@@ -258,20 +265,44 @@ export class TensorBoardSession {
         if (this.webviewPanel) {
             this.webviewPanel.webview.html = `<!DOCTYPE html>
             <html lang="en">
-            <head>
-                <meta charset="UTF-8">
-                <meta http-equiv="Content-Security-Policy" content="default-src 'unsafe-inline'; frame-src ${this.url};">
-                <iframe
-                    width="100%"
-                    height="800"
-                    sandbox="allow-scripts allow-forms allow-same-origin allow-pointer-lock"
-                    src="${this.url}"
-                    frameborder="0"
-                    allowfullscreen
-                ></iframe>
-                <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                <title>TensorBoard</title>
-            </head>
+                <head>
+                    <meta charset="UTF-8">
+                    <meta http-equiv="Content-Security-Policy" content="default-src 'unsafe-inline'; frame-src http: https:;">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <title>TensorBoard</title>
+                </head>
+                <body>
+                    <script type="text/javascript">
+                        function resizeFrame() {
+                            var f = window.document.getElementById('vscode-tensorboard-iframe');
+                            if (f) {
+                                f.style.height = window.innerHeight / 0.7 + "px";
+                                f.style.width = window.innerWidth / 0.7 + "px";
+                            }
+                        }
+                        window.addEventListener('resize', resizeFrame);
+                    </script>
+                    <iframe
+                        id="vscode-tensorboard-iframe"
+                        class="responsive-iframe"
+                        sandbox="allow-scripts allow-forms allow-same-origin allow-pointer-lock"
+                        src="${this.url}"
+                        frameborder="0"
+                        border="0"
+                        allowfullscreen
+                    ></iframe>
+                    <style>
+                        .responsive-iframe {
+                            transform: scale(0.7);
+                            transform-origin: 0 0;
+                            position: absolute;
+                            top: 0;
+                            left: 0;
+                            overflow: hidden;
+                            display: block;
+                        }
+                    </style>
+                </body>
             </html>`;
         }
     }

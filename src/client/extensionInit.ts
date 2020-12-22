@@ -3,8 +3,6 @@
 
 'use strict';
 
-// tslint:disable:max-func-body-length
-
 import { Container } from 'inversify';
 import { Disposable, Memento } from 'vscode';
 
@@ -24,7 +22,7 @@ import { PythonEnvironments } from './pythonEnvironments/api';
 
 export function initializeGlobals(
     // This is stored in ExtensionState.
-    context: IExtensionContext
+    context: IExtensionContext,
 ): ExtensionState {
     const cont = new Container();
     const serviceManager = new ServiceManager(cont);
@@ -42,7 +40,7 @@ export function initializeGlobals(
     return {
         context,
         disposables,
-        legacyIOC: { serviceManager, serviceContainer }
+        legacyIOC: { serviceManager, serviceContainer },
     };
 }
 
@@ -70,6 +68,6 @@ export function initializeComponents(ext: ExtensionState): Components {
     // We will be factoring them out of activateLegacy().
 
     return {
-        pythonEnvs
+        pythonEnvs,
     };
 }
