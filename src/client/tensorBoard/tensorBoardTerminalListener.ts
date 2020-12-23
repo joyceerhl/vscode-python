@@ -27,7 +27,7 @@ export class TensorBoardTerminalListener implements IExtensionSingleActivationSe
     }
 
     private async activateInternal() {
-        if (isTestExecution() || await this.experimentService.inExperiment(NativeTensorBoard.experiment)) {
+        if (isTestExecution() || (await this.experimentService.inExperiment(NativeTensorBoard.experiment))) {
             this.disposable = window.onDidWriteTerminalData(
                 (e) => this.handleTerminalInput(e).ignoreErrors(),
                 this,
