@@ -5,6 +5,7 @@ import { IExtensionSingleActivationService } from '../activation/types';
 import { IDisposableRegistry, IExperimentService } from '../common/types';
 import { TensorBoardPrompt } from './tensorBoardPrompt';
 import { NativeTensorBoard } from '../common/experiments/groups';
+import { isTestExecution } from '../common/constants';
 
 @injectable()
 export class TensorBoardTerminalListener implements IExtensionSingleActivationService {
@@ -26,7 +27,7 @@ export class TensorBoardTerminalListener implements IExtensionSingleActivationSe
     }
 
     private async activateInternal() {
-        if (await this.experimentService.inExperiment(NativeTensorBoard.experiment)) {
+        if (isTestExecution() || await this.experimentService.inExperiment(NativeTensorBoard.experiment)) {
             this.disposable = window.onDidWriteTerminalData(
                 (e) => this.handleTerminalInput(e).ignoreErrors(),
                 this,

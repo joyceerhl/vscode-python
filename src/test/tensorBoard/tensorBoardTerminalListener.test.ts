@@ -2,11 +2,9 @@ import { assert } from 'chai';
 import * as sinon from 'sinon';
 import * as vscode from 'vscode';
 import { IExtensionSingleActivationService } from '../../client/activation/types';
-import { IConfigurationService } from '../../client/common/types';
 import { sleep } from '../../client/common/utils/async';
 import { TensorBoardPrompt } from '../../client/tensorBoard/tensorBoardPrompt';
 import { TensorBoardTerminalListener } from '../../client/tensorBoard/tensorBoardTerminalListener';
-import { rootWorkspaceUri } from '../common';
 import { isWindows } from '../core';
 import { initialize } from '../initialize';
 
@@ -18,14 +16,6 @@ suite('TensorBoard terminal listener', async () => {
 
     setup(async () => {
         const { serviceManager } = await initialize();
-        // Pretend we're in the experiment
-        const configurationService = serviceManager.get<IConfigurationService>(IConfigurationService);
-        await configurationService.updateSetting(
-            'experiments.optInto',
-            ['nativeTensorBoard'],
-            rootWorkspaceUri,
-            vscode.ConfigurationTarget.Global,
-        );
         // Stub the prompt show method so we can verify that it was called
         const prompt = serviceManager.get<TensorBoardPrompt>(TensorBoardPrompt);
         showNativeTensorBoardPrompt = sinon.stub(prompt, 'showNativeTensorBoardPrompt');
