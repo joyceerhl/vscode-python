@@ -22,7 +22,6 @@ export class TensorBoardTerminalListener implements IExtensionSingleActivationSe
     }
 
     public async activate(): Promise<void> {
-        // All our work is done in constructor
         this.activateInternal().ignoreErrors();
     }
 
@@ -37,7 +36,7 @@ export class TensorBoardTerminalListener implements IExtensionSingleActivationSe
     }
 
     // This function is called whenever any data is written to a VS Code integrated
-    // terminal. It fires onDidRunTensorBoardCommand when the user attempts to launch
+    // terminal. It shows our tensorboard prompt when the user attempts to launch
     // tensorboard from the active terminal.
     // onDidWriteTerminalData emits raw data being written to the terminal output.
     // TerminalDataWriteEvent.data can be a individual single character as user is typing
@@ -73,7 +72,8 @@ export class TensorBoardTerminalListener implements IExtensionSingleActivationSe
             for (const line of lines) {
                 // This is admittedly aggressive, it matches if the line contains
                 // any mention of tensorboard (e.g. user is in a directory with
-                // tensorboard in the name) for increased discoverability
+                // tensorboard in the name or pip installs tensorboard) for increased
+                // discoverability
                 if (stripAnsi(line).includes('tensorboard')) {
                     match = true;
                     break;
@@ -88,8 +88,6 @@ export class TensorBoardTerminalListener implements IExtensionSingleActivationSe
             // Once we notify the user of a match, no need to keep listening for writes
             this.disposable?.dispose();
         }
-        console.log('Data is', data);
-        console.log('Buffer contents are', buffer);
 
         this.terminalBuffers.set(terminal, buffer);
     }
