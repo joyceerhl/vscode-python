@@ -25,10 +25,7 @@ export function registerTypes(serviceManager: IServiceManager): void {
         IExtensionSingleActivationService,
         TensorBoardImportTracker,
     );
-    serviceManager.addSingleton<TensorBoardTerminalListener>(
-        TensorBoardTerminalListener,
-        TensorBoardTerminalListener,
-    );
+    serviceManager.addSingleton<TensorBoardTerminalListener>(TensorBoardTerminalListener, TensorBoardTerminalListener);
     serviceManager.addBinding(TensorBoardTerminalListener, IExtensionSingleActivationService);
     serviceManager.addSingleton<IExtensionSingleActivationService>(
         IExtensionSingleActivationService,

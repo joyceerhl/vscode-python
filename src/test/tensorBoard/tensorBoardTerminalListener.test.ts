@@ -6,10 +6,11 @@ import { IConfigurationService } from '../../client/common/types';
 import { sleep } from '../../client/common/utils/async';
 import { TensorBoardPrompt } from '../../client/tensorBoard/tensorBoardPrompt';
 import { TensorBoardTerminalListener } from '../../client/tensorBoard/tensorBoardTerminalListener';
+import { rootWorkspaceUri } from '../common';
 import { isWindows } from '../core';
 import { initialize } from '../initialize';
 
-const terminalWriteTimeout = 5000;
+const terminalWriteTimeout = 7000;
 
 suite('TensorBoard terminal listener', async () => {
     let showNativeTensorBoardPrompt: sinon.SinonSpy;
@@ -22,7 +23,7 @@ suite('TensorBoard terminal listener', async () => {
         await configurationService.updateSetting(
             'experiments.optInto',
             ['nativeTensorBoard'],
-            undefined,
+            rootWorkspaceUri,
             vscode.ConfigurationTarget.Global,
         );
         // Stub the prompt show method so we can verify that it was called
@@ -79,7 +80,7 @@ suite('TensorBoard terminal listener', async () => {
         // We appear to be unable to handle backspaces on Linux as no corresponding
         // \b character is written to the raw data stream when the user presses the
         // backspace key. This behavior may be shell-dependent but is certainly the
-        // case with bash and sh. Sp onDidWriteTerminalData does not fire with the
+        // case with bash and sh. So onDidWriteTerminalData does not fire with the
         // backspace character when the user enters a backspace, and we as the extension
         // have no way of detecting that the user just hit a backspace, so we cannot
         // update our buffer accordingly. In such situations `tensorboard` terminal
