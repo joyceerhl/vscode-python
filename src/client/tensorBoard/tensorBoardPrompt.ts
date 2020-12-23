@@ -16,7 +16,7 @@ enum TensorBoardPromptStateKeys {
 export class TensorBoardPrompt {
     private state: IPersistentState<boolean>;
 
-    private enabled: Promise<boolean>;
+    private enabled: boolean;
 
     private inExperiment: Promise<boolean>;
 
@@ -41,7 +41,7 @@ export class TensorBoardPrompt {
     public async showNativeTensorBoardPrompt(): Promise<void> {
         if (
             (await this.inExperiment) &&
-            (await this.enabled) &&
+            this.enabled &&
             this.enabledInCurrentSession &&
             !this.waitingForUserSelection
         ) {
@@ -69,7 +69,7 @@ export class TensorBoardPrompt {
         }
     }
 
-    private async isPromptEnabled(): Promise<boolean> {
+    private isPromptEnabled(): boolean {
         return this.state.value;
     }
 
