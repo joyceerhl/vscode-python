@@ -27,10 +27,10 @@ export class TensorBoardSessionProvider implements IExtensionSingleActivationSer
         @inject(ICommandManager) private readonly commandManager: ICommandManager,
         @inject(IDisposableRegistry) private readonly disposables: IDisposableRegistry,
         @inject(IExperimentService) private readonly experimentService: IExperimentService,
-        @inject(IProcessServiceFactory) private readonly processServiceFactory: IProcessServiceFactory
+        @inject(IProcessServiceFactory) private readonly processServiceFactory: IProcessServiceFactory,
     ) {}
 
-    public async activate() {
+    public async activate(): Promise<void> {
         this.activateInternal().ignoreErrors();
     }
 
@@ -60,7 +60,8 @@ export class TensorBoardSessionProvider implements IExtensionSingleActivationSer
                 this.interpreterService,
                 this.workspaceService,
                 this.processServiceFactory,
-                this.commandManager
+                this.commandManager,
+                this.disposables,
             );
             await newSession.initialize();
         } catch (e) {

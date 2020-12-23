@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 import { inject, injectable } from 'inversify';
-import { CancellationToken, CodeLens, Command, languages, Position, Range, TextDocument } from 'vscode';
+import { CodeLens, Command, languages, Position, Range, TextDocument } from 'vscode';
 import { IExtensionSingleActivationService } from '../activation/types';
 import { Commands, PYTHON } from '../common/constants';
 import { NativeTensorBoard, NativeTensorBoardEntrypoints } from '../common/experiments/groups';
@@ -23,7 +23,7 @@ export class TensorBoardCodeLensProvider implements IExtensionSingleActivationSe
 
     constructor(
         @inject(IExperimentService) private experimentService: IExperimentService,
-        @inject(IDisposableRegistry) private disposables: IDisposableRegistry
+        @inject(IDisposableRegistry) private disposables: IDisposableRegistry,
     ) {}
 
     public async activate(): Promise<void> {
@@ -31,7 +31,7 @@ export class TensorBoardCodeLensProvider implements IExtensionSingleActivationSe
     }
 
     // eslint-disable-next-line class-methods-use-this
-    public provideCodeLenses(document: TextDocument, _token: CancellationToken): CodeLens[] {
+    public provideCodeLenses(document: TextDocument): CodeLens[] {
         const command: Command = {
             title: TensorBoard.launchNativeTensorBoardSessionCodeLens(),
             command: Commands.LaunchTensorBoard,

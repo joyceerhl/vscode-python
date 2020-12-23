@@ -21,7 +21,7 @@ export abstract class LanguageServerAnalysisOptionsBase implements ILanguageServ
 
     protected constructor(
         private readonly envVarsProvider: IEnvironmentVariablesProvider,
-        lsOutputChannel: ILanguageServerOutputChannel
+        lsOutputChannel: ILanguageServerOutputChannel,
     ) {
         this.output = lsOutputChannel.channel;
     }
@@ -49,11 +49,11 @@ export abstract class LanguageServerAnalysisOptionsBase implements ILanguageServ
             documentSelector,
             workspaceFolder,
             synchronize: {
-                configurationSection: PYTHON_LANGUAGE
+                configurationSection: PYTHON_LANGUAGE,
             },
             outputChannel: this.output,
             revealOutputChannelOn: RevealOutputChannelOn.Never,
-            initializationOptions: await this.getInitializationOptions()
+            initializationOptions: await this.getInitializationOptions(),
         };
     }
 
@@ -65,7 +65,6 @@ export abstract class LanguageServerAnalysisOptionsBase implements ILanguageServ
         return PYTHON;
     }
 
-    // tslint:disable-next-line: no-any
     protected async getInitializationOptions(): Promise<any> {
         return undefined;
     }

@@ -132,5 +132,5 @@ export enum EventName {
 
 export enum PlatformErrors {
     FailedToParseVersion = 'FailedToParseVersion',
-    FailedToDetermineOS = 'FailedToDetermineOS'
+    FailedToDetermineOS = 'FailedToDetermineOS',
 }

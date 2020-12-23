@@ -19,6 +19,6 @@ export function createTensorBoardPromptWithMocks(): TensorBoardPrompt {
         appShell.object,
         commandManager.object,
         persistentStateFactory.object,
-        expService.object
+        expService.object,
     );
 }

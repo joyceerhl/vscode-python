@@ -12,14 +12,14 @@ import { EventName } from '../telemetry/constants';
 import { TensorBoardEntryPoint, TensorBoardLaunchSource, TensorBoardPromptSelection } from './constants';
 
 enum TensorBoardPromptStateKeys {
-    ShowNativeTensorBoardPrompt = 'showNativeTensorBoardPrompt'
+    ShowNativeTensorBoardPrompt = 'showNativeTensorBoardPrompt',
 }
 
 @injectable()
 export class TensorBoardPrompt {
     private state: IPersistentState<boolean>;
 
-    private enabled: Promise<boolean>;
+    private enabled: boolean;
 
     private inExperiment: Promise<boolean>;
 
@@ -37,11 +37,11 @@ export class TensorBoardPrompt {
         @inject(IApplicationShell) private applicationShell: IApplicationShell,
         @inject(ICommandManager) private commandManager: ICommandManager,
         @inject(IPersistentStateFactory) private persistentStateFactory: IPersistentStateFactory,
-        @inject(IExperimentService) private experimentService: IExperimentService
+        @inject(IExperimentService) private experimentService: IExperimentService,
     ) {
         this.state = this.persistentStateFactory.createWorkspacePersistentState<boolean>(
             TensorBoardPromptStateKeys.ShowNativeTensorBoardPrompt,
-            true
+            true,
         );
         this.enabled = this.isPromptEnabled();
         this.inExperiment = this.isInExperiment();
@@ -50,7 +50,7 @@ export class TensorBoardPrompt {
     public async showNativeTensorBoardPrompt(source: TensorBoardLaunchSource): Promise<void> {
         if (
             (await this.inExperiment) &&
-            (await this.enabled) &&
+            this.enabled &&
             this.enabledInCurrentSession &&
             !this.waitingForUserSelection
         ) {
@@ -62,7 +62,7 @@ export class TensorBoardPrompt {
             this.sendTelemetryOnce();
             const selection = await this.applicationShell.showInformationMessage(
                 TensorBoard.nativeTensorBoardPrompt(),
-                ...options
+                ...options,
             );
             this.waitingForUserSelection = false;
             this.enabledInCurrentSession = false;
@@ -85,7 +85,7 @@ export class TensorBoardPrompt {
         }
     }
 
-    private async isPromptEnabled(): Promise<boolean> {
+    private isPromptEnabled(): boolean {
         return this.state.value;
     }
 

@@ -90,10 +90,10 @@ class Venvs {
 }
 
 type locatorFactoryFuncType1 = () => Promise<ILocator & IDisposable>;
-// tslint:disable:no-any
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type locatorFactoryFuncType2 = (_: any) => Promise<ILocator & IDisposable>;
-// tslint:enable:no-any
+
 export type locatorFactoryFuncType = locatorFactoryFuncType1 & locatorFactoryFuncType2;
 
 /**
@@ -119,7 +119,7 @@ export function testLocatorWatcher(
          * to verify it. Omitting that check in those cases as we can never deterministically say when it's
          * ready to check.
          */
-        kind?: PythonEnvKind
+        kind?: PythonEnvKind;
     },
 ): void {
     let locator: ILocator & IDisposable;

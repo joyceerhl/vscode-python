@@ -79,13 +79,10 @@ jobs:
         run: npm run checkDependencies
 
       - name: Run linting on TypeScript code
-        run: npx tslint --project tsconfig.json
+        run: npm run lint
 
-      - name: Run prettier on TypeScript code
-        run: npx prettier 'src/**/*.ts*' --check
-
-      - name: Run prettier on JavaScript code
-        run: npx prettier 'build/**/*.js' --check
+      - name: Run formatting on TypeScript code
+        run: npm run format-check
 
       - name: Use Python ${{env.PYTHON_VERSION}}
         uses: actions/setup-python@v2

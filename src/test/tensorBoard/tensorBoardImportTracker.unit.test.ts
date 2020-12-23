@@ -70,7 +70,7 @@ suite('TensorBoard import tracker', () => {
         const document = documentManager.addDocument(
             'import tensorflow as tf\nfrom torch.utils import foo',
             'foo.cpp',
-            'cpp'
+            'cpp',
         );
         await documentManager.showTextDocument(document);
         await tensorBoardImportTracker.activate();

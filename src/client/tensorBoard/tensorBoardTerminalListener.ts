@@ -1,36 +1,43 @@
 import { inject, injectable } from 'inversify';
 import { Disposable, Terminal, TerminalDataWriteEvent, window } from 'vscode';
+import stripAnsi from 'strip-ansi';
 import { IExtensionSingleActivationService } from '../activation/types';
-import { IDisposableRegistry } from '../common/types';
-import { noop } from '../common/utils/misc';
 import { TensorBoardLaunchSource } from './constants';
+import { IDisposableRegistry, IExperimentService } from '../common/types';
 import { TensorBoardPrompt } from './tensorBoardPrompt';
+import { NativeTensorBoard } from '../common/experiments/groups';
+import { isTestExecution } from '../common/constants';
 
 @injectable()
 export class TensorBoardTerminalListener implements IExtensionSingleActivationService {
-    private disposable: Disposable;
+    private disposable: Disposable | undefined;
 
     private terminalBuffers: WeakMap<Terminal, string[]>;
 
     constructor(
         @inject(IDisposableRegistry) private disposableRegistry: IDisposableRegistry,
-        @inject(TensorBoardPrompt) private prompt: TensorBoardPrompt
+        @inject(TensorBoardPrompt) private prompt: TensorBoardPrompt,
+        @inject(IExperimentService) private experimentService: IExperimentService,
     ) {
         this.terminalBuffers = new WeakMap<Terminal, string[]>();
-        this.disposable = window.onDidWriteTerminalData(
-            (e) => this.handleTerminalInput(e).ignoreErrors(),
-            this,
-            this.disposableRegistry
-        );
     }
 
-    public async activate() {
-        // All our work is done in constructor
-        noop();
+    public async activate(): Promise<void> {
+        this.activateInternal().ignoreErrors();
+    }
+
+    private async activateInternal() {
+        if (isTestExecution() || (await this.experimentService.inExperiment(NativeTensorBoard.experiment))) {
+            this.disposable = window.onDidWriteTerminalData(
+                (e) => this.handleTerminalInput(e).ignoreErrors(),
+                this,
+                this.disposableRegistry,
+            );
+        }
     }
 
     // This function is called whenever any data is written to a VS Code integrated
-    // terminal. It fires onDidRunTensorBoardCommand when the user attempts to launch
+    // terminal. It shows our tensorboard prompt when the user attempts to launch
     // tensorboard from the active terminal.
     // onDidWriteTerminalData emits raw data being written to the terminal output.
     // TerminalDataWriteEvent.data can be a individual single character as user is typing
@@ -48,14 +55,10 @@ export class TensorBoardTerminalListener implements IExtensionSingleActivationSe
         // At any given time, this array contains the current line being built
         let buffer = this.terminalBuffers.get(terminal) || [];
         let match = false;
-
-        console.log('Got data', data);
-        console.log('Buffer contents are', buffer);
-
-        if (data.match(/[\b]|\^H/)) {
-            // On Linux backspaces appear in `data` as ^H
+        if (/\x08/.test(data)) {
             // Assumption here is that backspaces only get written to terminal output
             // one character at a time
+            console.log('Matched backspace character');
             if (buffer.length > 0) {
                 // Handle user backspace
                 buffer.pop();
@@ -70,8 +73,9 @@ export class TensorBoardTerminalListener implements IExtensionSingleActivationSe
             for (const line of lines) {
                 // This is admittedly aggressive, it matches if the line contains
                 // any mention of tensorboard (e.g. user is in a directory with
-                // tensorboard in the name) for increased discoverability
-                if (line.includes('tensorboard')) {
+                // tensorboard in the name or pip installs tensorboard) for increased
+                // discoverability
+                if (stripAnsi(line).includes('tensorboard')) {
                     match = true;
                     break;
                 }
@@ -83,7 +87,7 @@ export class TensorBoardTerminalListener implements IExtensionSingleActivationSe
         if (match) {
             this.prompt.showNativeTensorBoardPrompt(TensorBoardLaunchSource.terminal).ignoreErrors();
             // Once we notify the user of a match, no need to keep listening for writes
-            this.disposable.dispose();
+            this.disposable?.dispose();
         }
 
         this.terminalBuffers.set(terminal, buffer);

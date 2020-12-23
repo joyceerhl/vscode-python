@@ -1,4 +1,5 @@
-// tslint:disable:no-require-imports no-var-requires no-unnecessary-callback-wrapper
+/* eslint-disable max-classes-per-file */
+
 import { inject, injectable } from 'inversify';
 import * as path from 'path';
 import { Uri } from 'vscode';
@@ -10,6 +11,7 @@ import { EnvironmentType, PythonEnvironment } from '../../../info';
 import { lookForInterpretersInDirectory } from '../helpers';
 import { CacheableLocatorService } from './cacheableLocatorService';
 
+// eslint-disable-next-line global-require
 const flatten = require('lodash/flatten') as typeof import('lodash/flatten');
 
 /**
@@ -30,7 +32,7 @@ export class KnownPathsService extends CacheableLocatorService {
      *
      * Called by VS Code to indicate it is done with the resource.
      */
-    // tslint:disable:no-empty
+
     // eslint-disable-next-line
     public dispose(): void {
         // No body
@@ -53,15 +55,13 @@ export class KnownPathsService extends CacheableLocatorService {
         const promises = this.knownSearchPaths.getSearchPaths().map((dir) => this.getInterpretersInDirectory(dir));
         return Promise.all<string[]>(promises)
             .then((listOfInterpreters) => flatten(listOfInterpreters))
-            .then((interpreters) => interpreters.filter(
-                (item) => item.length > 0,
-            ))
-            .then((interpreters) => Promise.all(
-                interpreters.map((interpreter) => this.getInterpreterDetails(interpreter)),
-            ))
-            .then((interpreters) => interpreters.filter(
-                (interpreter) => !!interpreter,
-            ).map((interpreter) => interpreter!));
+            .then((interpreters) => interpreters.filter((item) => item.length > 0))
+            .then((interpreters) =>
+                Promise.all(interpreters.map((interpreter) => this.getInterpreterDetails(interpreter))),
+            )
+            .then((interpreters) =>
+                interpreters.filter((interpreter) => !!interpreter).map((interpreter) => interpreter!),
+            );
     }
 
     /**
@@ -70,7 +70,7 @@ export class KnownPathsService extends CacheableLocatorService {
     private async getInterpreterDetails(interpreter: string) {
         const details = await this.helper.getInterpreterInformation(interpreter);
         if (!details) {
-            return;
+            return undefined;
         }
         this._hasInterpreters.resolve(true);
         return {

@@ -79,7 +79,10 @@ jobs:
         run: npm run checkDependencies
 
       - name: Run linting on TypeScript code
-        run: npx tslint --project tsconfig.json
+        run: npm run lint
+
+      - name: Run formatting on TypeScript code
+        run: npm run format-check
 
   ### Non-smoke tests
   tests:

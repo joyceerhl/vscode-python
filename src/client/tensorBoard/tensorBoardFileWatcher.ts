@@ -23,7 +23,7 @@ export class TensorBoardFileWatcher implements IExtensionSingleActivationService
         @inject(IWorkspaceService) private workspaceService: IWorkspaceService,
         @inject(TensorBoardPrompt) private tensorBoardPrompt: TensorBoardPrompt,
         @inject(IDisposableRegistry) private readonly disposables: IDisposableRegistry,
-        @inject(IExperimentService) private experimentService: IExperimentService
+        @inject(IExperimentService) private experimentService: IExperimentService,
     ) {}
 
     public async activate(): Promise<void> {
@@ -51,7 +51,7 @@ export class TensorBoardFileWatcher implements IExtensionSingleActivationService
 
         // If workspace folders change, ensure we update our FileSystemWatchers
         this.disposables.push(
-            this.workspaceService.onDidChangeWorkspaceFolders((e) => this.updateFileSystemWatchers(e))
+            this.workspaceService.onDidChangeWorkspaceFolders((e) => this.updateFileSystemWatchers(e)),
         );
     }
 
@@ -66,7 +66,7 @@ export class TensorBoardFileWatcher implements IExtensionSingleActivationService
             }
         } catch (e) {
             traceError(
-                `Failed to prompt to launch TensorBoard session based on preexisting tfevent files in workspace: ${e}`
+                `Failed to prompt to launch TensorBoard session based on preexisting tfevent files in workspace: ${e}`,
             );
         }
     }
