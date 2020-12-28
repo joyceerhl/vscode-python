@@ -282,6 +282,7 @@ export class TensorBoardSession {
         });
         this.webviewPanel = webviewPanel;
         webviewPanel.onDidDispose(() => {
+            traceInfo('TensorBoard webview panel has been disposed. Killing TensorBoard process...');
             this.webviewPanel = undefined;
             // Kill the running TensorBoard session
             this.process?.kill();
