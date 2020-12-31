@@ -87,7 +87,9 @@ async function runTensorBoardFileSystemWatcherTests() {
     for (const folderName of ['tensorBoard1', 'tensorBoard2', 'tensorBoard3']) {
         const folder = path.join(parentDir, folderName);
         console.log(`Running test from '${folder}'`);
-        process.send!('doNotKill');
+        if (process.send) {
+            process.send('doNotKill');
+        }
         await runTests({
             extensionDevelopmentPath: EXTENSION_ROOT_DIR_FOR_TESTS,
             extensionTestsPath: path.join(EXTENSION_ROOT_DIR_FOR_TESTS, 'out', 'test', 'tensorBoard'),
