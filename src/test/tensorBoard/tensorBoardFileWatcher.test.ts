@@ -8,7 +8,7 @@ import { initialize } from '../initialize';
 
 suite('TensorBoard file system watcher', async () => {
     let showNativeTensorBoardPrompt: sinon.SinonSpy;
-    const currFolderName = path.basename(path.resolve('.'));
+    const currFolderName = path.resolve('.');
 
     setup(function () {
         if (process.env.VSC_RUN_TFEVENTFILES_WORKSPACE_TESTS !== '1') {
