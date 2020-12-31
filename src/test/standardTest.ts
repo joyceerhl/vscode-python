@@ -82,7 +82,7 @@ async function runTensorBoardFileSystemWatcherTests() {
         console.log(`Running test from '${folder}'`);
         await runTests({
             extensionDevelopmentPath: EXTENSION_ROOT_DIR_FOR_TESTS,
-            extensionTestsPath: path.join(EXTENSION_ROOT_DIR_FOR_TESTS, 'out', 'test'),
+            extensionTestsPath: path.join(EXTENSION_ROOT_DIR_FOR_TESTS, 'out', 'test', 'tensorBoard'),
             launchArgs: [folder],
             version: channel,
             extensionTestsEnv: {
