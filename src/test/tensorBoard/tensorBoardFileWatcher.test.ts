@@ -1,8 +1,6 @@
 import { assert } from 'chai';
 import * as sinon from 'sinon';
-import { ConfigurationTarget } from 'vscode';
 import { IWorkspaceService } from '../../client/common/application/types';
-import { IConfigurationService } from '../../client/common/types';
 import { TensorBoardFileWatcher } from '../../client/tensorBoard/tensorBoardFileWatcher';
 import { TensorBoardPrompt } from '../../client/tensorBoard/tensorBoardPrompt';
 import { initialize } from '../initialize';
@@ -18,14 +16,6 @@ suite('TensorBoard file system watcher', async () => {
 
     async function testSetup() {
         const { serviceManager } = await initialize();
-        // Opt into the experiment
-        const configurationService = serviceManager.get<IConfigurationService>(IConfigurationService);
-        await configurationService.updateSetting(
-            'experiments.optInto',
-            ['nativeTensorBoard'],
-            undefined,
-            ConfigurationTarget.Global,
-        );
         // Stub the prompt show method so we can verify that it was called
         const prompt = serviceManager.get<TensorBoardPrompt>(TensorBoardPrompt);
         showNativeTensorBoardPrompt = sinon.stub(prompt, 'showNativeTensorBoardPrompt');
