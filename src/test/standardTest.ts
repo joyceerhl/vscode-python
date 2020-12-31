@@ -9,7 +9,7 @@ import { EXTENSION_ROOT_DIR_FOR_TESTS } from './constants';
 // between child and parent. See https://nodejs.org/api/child_process.html#child_process_options_stdio
 process.on('disconnect', () => {
     process.exit(1);
-})
+});
 
 // If running smoke tests, we don't have access to this.
 if (process.env.TEST_FILES_SUFFIX !== 'smoke.test') {

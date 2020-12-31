@@ -117,7 +117,7 @@ async function start() {
         } else if (msg === 'killAfterRunning') {
             shouldKillAfterRunning = true;
         }
-    })
+    });
     proc.once('close', end);
 }
 
