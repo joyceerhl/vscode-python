@@ -8,6 +8,7 @@ import { initialize } from '../initialize';
 
 suite('TensorBoard file system watcher', async () => {
     let showNativeTensorBoardPrompt: sinon.SinonSpy;
+    const currFolderName = path.basename(path.resolve('.'));
 
     setup(function () {
         if (process.env.VSC_RUN_TFEVENTFILES_WORKSPACE_TESTS !== '1') {
@@ -31,7 +32,8 @@ suite('TensorBoard file system watcher', async () => {
     });
 
     test('tfeventfile in workspace root results in prompt being shown', async function () {
-        if (path.basename(path.resolve('.')) !== 'tensorBoard1') {
+        console.log(`Current folder name is ${currFolderName}`);
+        if (currFolderName !== 'tensorBoard1') {
             this.skip();
         }
         await testSetup();
@@ -39,7 +41,9 @@ suite('TensorBoard file system watcher', async () => {
     });
 
     test('tfeventfile one directory down results in prompt being shown', async function () {
-        if (path.basename(path.resolve('.')) !== 'tensorBoard2') {
+        console.log(`Current folder name is ${currFolderName}`);
+
+        if (currFolderName !== 'tensorBoard2') {
             this.skip();
         }
         await testSetup();
@@ -47,7 +51,9 @@ suite('TensorBoard file system watcher', async () => {
     });
 
     test('tfeventfile two directories down does not result in prompt being called', async function () {
-        if (path.basename(path.resolve('.')) !== 'tensorBoard3') {
+        console.log(`Current folder name is ${currFolderName}`);
+
+        if (currFolderName !== 'tensorBoard3') {
             this.skip();
         }
         await testSetup();
