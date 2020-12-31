@@ -1,6 +1,7 @@
 import { assert } from 'chai';
 import * as path from 'path';
 import * as sinon from 'sinon';
+import { workspace } from 'vscode';
 import { IWorkspaceService } from '../../client/common/application/types';
 import { TensorBoardFileWatcher } from '../../client/tensorBoard/tensorBoardFileWatcher';
 import { TensorBoardPrompt } from '../../client/tensorBoard/tensorBoardPrompt';
@@ -32,7 +33,7 @@ suite('TensorBoard file system watcher', async () => {
     });
 
     test('tfeventfile in workspace root results in prompt being shown', async function () {
-        console.log(`Current folder name is ${currFolderName}`);
+        console.log(`Current workspace folders: `, workspace.workspaceFolders);
         if (currFolderName !== 'tensorBoard1') {
             this.skip();
         }
