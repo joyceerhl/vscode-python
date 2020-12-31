@@ -76,6 +76,7 @@ async function installPylanceExtension(vscodeExecutablePath: string) {
 // Launch VSC test runner with specific folders. We can't open VSC with a different folder
 // once the test is actually running since this kills the current extension host process.
 async function runTensorBoardFileSystemWatcherTests() {
+    process.env.VSC_DO_NOT_EXIT_TESTS = '1';
     const parentDir = path.join(__dirname, '..', '..', 'src', 'test', 'tensorBoard');
     for (const folderName of ['tensorBoard1', 'tensorBoard2', 'tensorBoard3']) {
         const folder = path.join(parentDir, folderName);
@@ -93,6 +94,7 @@ async function runTensorBoardFileSystemWatcherTests() {
             },
         });
     }
+    process.env.VSC_DO_NOT_EXIT_TESTS = undefined;
 }
 
 async function start() {

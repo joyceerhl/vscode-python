@@ -69,8 +69,10 @@ async function end(exitCode: number) {
     if (server) {
         server.close();
     }
-    // Exit with required code.
-    process.exit(exitCode);
+    if (process.env.VSC_DO_NOT_EXIT_TESTS === undefined) {
+        // Exit with required code.
+        process.exit(exitCode);
+    }
 }
 
 async function startSocketServer() {
