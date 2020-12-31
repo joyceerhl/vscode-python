@@ -66,11 +66,12 @@ async function end(exitCode: number) {
             noop();
         }
     }
-    if (server) {
-        server.close();
-    }
     if (process.env.VSC_DO_NOT_EXIT_TESTS === undefined) {
+        if (server) {
+            server.close();
+        }
         // Exit with required code.
+        console.log('Exiting text bootstrap');
         process.exit(exitCode);
     }
 }
