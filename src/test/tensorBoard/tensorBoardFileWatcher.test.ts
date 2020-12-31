@@ -1,7 +1,5 @@
 import { assert } from 'chai';
-import * as path from 'path';
 import * as sinon from 'sinon';
-import { workspace } from 'vscode';
 import { IWorkspaceService } from '../../client/common/application/types';
 import { TensorBoardFileWatcher } from '../../client/tensorBoard/tensorBoardFileWatcher';
 import { TensorBoardPrompt } from '../../client/tensorBoard/tensorBoardPrompt';
@@ -9,10 +7,9 @@ import { initialize } from '../initialize';
 
 suite('TensorBoard file system watcher', async () => {
     let showNativeTensorBoardPrompt: sinon.SinonSpy;
-    const currFolderName = path.resolve('.');
 
     setup(function () {
-        if (process.env.VSC_RUN_TFEVENTFILES_WORKSPACE_TESTS !== '1') {
+        if (!process.env.VSC_RUN_TFEVENTFILES_WORKSPACE_TESTS) {
             this.skip();
         }
     });
@@ -33,8 +30,8 @@ suite('TensorBoard file system watcher', async () => {
     });
 
     test('tfeventfile in workspace root results in prompt being shown', async function () {
-        console.log(`Current workspace folders: `, workspace.workspaceFolders);
-        if (currFolderName !== 'tensorBoard1') {
+        console.log(`Current env var: `, process.env.VSC_RUN_TFEVENTFILES_WORKSPACE_TESTS);
+        if (process.env.VSC_RUN_TFEVENTFILES_WORKSPACE_TESTS !== 'tensorBoard1') {
             this.skip();
         }
         await testSetup();
@@ -42,9 +39,8 @@ suite('TensorBoard file system watcher', async () => {
     });
 
     test('tfeventfile one directory down results in prompt being shown', async function () {
-        console.log(`Current folder name is ${currFolderName}`);
-
-        if (currFolderName !== 'tensorBoard2') {
+        console.log(`Current env var: `, process.env.VSC_RUN_TFEVENTFILES_WORKSPACE_TESTS);
+        if (process.env.VSC_RUN_TFEVENTFILES_WORKSPACE_TESTS !== 'tensorBoard2') {
             this.skip();
         }
         await testSetup();
@@ -52,9 +48,8 @@ suite('TensorBoard file system watcher', async () => {
     });
 
     test('tfeventfile two directories down does not result in prompt being called', async function () {
-        console.log(`Current folder name is ${currFolderName}`);
-
-        if (currFolderName !== 'tensorBoard3') {
+        console.log(`Current env var: `, process.env.VSC_RUN_TFEVENTFILES_WORKSPACE_TESTS);
+        if (process.env.VSC_RUN_TFEVENTFILES_WORKSPACE_TESTS !== 'tensorBoard3') {
             this.skip();
         }
         await testSetup();
