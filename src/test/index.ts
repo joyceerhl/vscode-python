@@ -14,9 +14,11 @@ import * as glob from 'glob';
 import * as Mocha from 'mocha';
 import * as path from 'path';
 import { IS_CI_SERVER_TEST_DEBUGGER, MOCHA_REPORTER_JUNIT } from './ciConstants';
-import { IS_MULTI_ROOT_TEST, MAX_EXTENSION_ACTIVATION_TIME, TEST_RETRYCOUNT, TEST_TIMEOUT } from './constants';
+import { EXTENSION_ROOT_DIR_FOR_TESTS, IS_MULTI_ROOT_TEST, MAX_EXTENSION_ACTIVATION_TIME, TEST_RETRYCOUNT, TEST_TIMEOUT } from './constants';
 import { initialize } from './initialize';
 import { initializeLogger } from './testLogger';
+
+const TESTSROOT = path.join(EXTENSION_ROOT_DIR_FOR_TESTS, 'out', 'test');
 
 initializeLogger();
 
@@ -81,7 +83,7 @@ function configure(): SetupOptions {
     // changed by setting env var `MOCHA_FILE` (we do this in our CI).
     if (MOCHA_REPORTER_JUNIT) {
         options.reporter = 'mocha-multi-reporters';
-        const reporterPath = path.join(__dirname, 'common', 'exitCIAfterTestReporter.js');
+        const reporterPath = path.join(TESTSROOT, 'common', 'exitCIAfterTestReporter.js');
         options.reporterOptions = {
             reporterEnabled: `spec,mocha-junit-reporter,${reporterPath}`,
         };
@@ -129,7 +131,7 @@ function activatePythonExtensionScript() {
 export async function run(): Promise<void> {
     const options = configure();
     const mocha = new Mocha(options);
-    const testsRoot = path.join(__dirname);
+    const testsRoot = path.join(TESTSROOT);
 
     // Enable source map support.
     require('source-map-support').install();

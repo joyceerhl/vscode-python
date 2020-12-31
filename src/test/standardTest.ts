@@ -73,6 +73,28 @@ async function installPylanceExtension(vscodeExecutablePath: string) {
     }
 }
 
+// Launch VSC test runner with specific folders. We can't open VSC with a different folder
+// once the test is actually running since this kills the current extension host process.
+async function runTensorBoardFileSystemWatcherTests() {
+    const parentDir = path.join(__dirname, '..', '..', 'src', 'test', 'tensorBoard');
+    for (const folderName of ['tensorBoard1', 'tensorBoard2', 'tensorBoard3']) {
+        const folder = path.join(parentDir, folderName);
+        console.log(`Running test from '${folder}'`);
+        await runTests({
+            extensionDevelopmentPath: EXTENSION_ROOT_DIR_FOR_TESTS,
+            extensionTestsPath: path.join(EXTENSION_ROOT_DIR_FOR_TESTS, 'out', 'test'),
+            launchArgs: [folder],
+            version: channel,
+            extensionTestsEnv: {
+                ...process.env,
+                UITEST_DISABLE_INSIDERS: '1',
+                VSC_RUN_TFEVENTFILES_WORKSPACE_TESTS: '1',
+                VSC_PYTHON_CI_TEST_GREP: 'TensorBoard file system watcher',
+            },
+        });
+    }
+}
+
 async function start() {
     console.log('*'.repeat(100));
     console.log('Start Standard tests');
@@ -96,7 +118,12 @@ async function start() {
         extensionTestsEnv: { ...process.env, UITEST_DISABLE_INSIDERS: '1' },
     });
 }
-start().catch((ex) => {
-    console.error('End Standard tests (with errors)', ex);
-    process.exit(1);
-});
+start()
+    .then(async () => {
+        await runTensorBoardFileSystemWatcherTests();
+    })
+    .catch((ex) => {
+        console.error('End Standard tests (with errors)', ex);
+        process.exit(1);
+    })
+    .finally(() => delete process.env.VSC_RUN_TFEVENTFILES_WORKSPACE_TESTS);
