@@ -119,9 +119,7 @@ async function start() {
         extensionTestsEnv: { ...process.env, UITEST_DISABLE_INSIDERS: '1' },
     });
 }
-start()
-    .catch((ex) => {
-        console.error('End Standard tests (with errors)', ex);
-        process.exit(1);
-    })
-    .finally(() => delete process.env.VSC_RUN_TFEVENTFILES_WORKSPACE_TESTS);
+start().catch((ex) => {
+    console.error('End Standard tests (with errors)', ex);
+    process.exit(1);
+});

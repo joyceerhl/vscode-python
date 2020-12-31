@@ -74,7 +74,7 @@ function configure(): SetupOptions {
         testFilesSuffix,
         // Force Mocha to exit after tests.
         // It has been observed that this isn't sufficient, hence the reason for src/test/common/exitCIAfterTestReporter.ts
-        exit: true,
+        exit: false,
     };
 
     // If the `MOCHA_REPORTER_JUNIT` env var is true, set up the CI reporter for

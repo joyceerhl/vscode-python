@@ -31,6 +31,7 @@ export class TensorBoardFileWatcher implements IExtensionSingleActivationService
 
     private async activateInternal() {
         if (!(await this.experimentService.inExperiment(NativeTensorBoard.experiment))) {
+            console.log('Not in native tensorboard experiment, returning');
             return;
         }
 
