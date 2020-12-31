@@ -14,7 +14,13 @@ import * as glob from 'glob';
 import * as Mocha from 'mocha';
 import * as path from 'path';
 import { IS_CI_SERVER_TEST_DEBUGGER, MOCHA_REPORTER_JUNIT } from './ciConstants';
-import { EXTENSION_ROOT_DIR_FOR_TESTS, IS_MULTI_ROOT_TEST, MAX_EXTENSION_ACTIVATION_TIME, TEST_RETRYCOUNT, TEST_TIMEOUT } from './constants';
+import {
+    EXTENSION_ROOT_DIR_FOR_TESTS,
+    IS_MULTI_ROOT_TEST,
+    MAX_EXTENSION_ACTIVATION_TIME,
+    TEST_RETRYCOUNT,
+    TEST_TIMEOUT,
+} from './constants';
 import { initialize } from './initialize';
 import { initializeLogger } from './testLogger';
 

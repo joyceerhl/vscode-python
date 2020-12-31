@@ -135,7 +135,7 @@ function activatePythonExtensionScript() {
  * @returns {Promise<void>}
  */
 export async function run(): Promise<void> {
-    console.log('Configuring tests')
+    console.log('Configuring tests');
     const options = configure();
     const mocha = new Mocha(options);
     const testsRoot = path.join(TESTSROOT);
