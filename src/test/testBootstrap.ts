@@ -109,7 +109,7 @@ async function startSocketServer() {
 
 async function start() {
     await startSocketServer();
-    const options: SpawnOptions = { cwd: process.cwd(), env: process.env, detached: true, stdio: 'inherit' };
+    const options: SpawnOptions = { cwd: process.cwd(), env: process.env, detached: true, stdio: [0, 1, 2, 'ipc'] };
     proc = spawn(process.execPath, [testFile], options);
     proc.on('message', (msg) => {
         if (msg === 'doNotKill') {
