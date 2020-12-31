@@ -88,7 +88,7 @@ async function runTensorBoardFileSystemWatcherTests() {
             extensionTestsEnv: {
                 ...process.env,
                 UITEST_DISABLE_INSIDERS: '1',
-                VSC_RUN_TFEVENTFILES_WORKSPACE_TESTS: '1',
+                VSC_RUN_TFEVENTFILES_WORKSPACE_TESTS: folderName,
                 VSC_PYTHON_CI_TEST_GREP: 'TensorBoard file system watcher',
             },
         });
