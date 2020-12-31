@@ -122,7 +122,9 @@ async function start() {
         .concat(['--timeout', '5000']);
     await runTensorBoardFileSystemWatcherTests();
     console.log(`Starting vscode ${channel} with args ${launchArgs.join(' ')}`);
-    process.send!('killAfterRunning');
+    if (process.send) {
+        process.send('killAfterRunning');
+    }
     await runTests({
         extensionDevelopmentPath: extensionDevelopmentPath,
         extensionTestsPath: path.join(EXTENSION_ROOT_DIR_FOR_TESTS, 'out', 'test'),

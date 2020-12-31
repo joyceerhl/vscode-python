@@ -112,6 +112,7 @@ async function start() {
     const options: SpawnOptions = { cwd: process.cwd(), env: process.env, detached: true, stdio: [0, 1, 2, 'ipc'] };
     proc = spawn(process.execPath, [testFile], options);
     proc.on('message', (msg) => {
+        console.log('Got message from child: ', msg);
         if (msg === 'doNotKill') {
             shouldKillAfterRunning = false;
         } else if (msg === 'killAfterRunning') {
