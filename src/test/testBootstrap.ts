@@ -38,6 +38,8 @@ const portFile = path.join(EXTENSION_ROOT_DIR, 'port.txt');
 let proc: ChildProcess | undefined;
 let server: Server | undefined;
 
+let shouldKillAfterRunning = true;
+
 async function deletePortFile() {
     try {
         if (await fs.pathExists(portFile)) {
@@ -66,7 +68,7 @@ async function end(exitCode: number) {
             noop();
         }
     }
-    if (process.env.VSC_DO_NOT_EXIT_TESTS === undefined) {
+    if (shouldKillAfterRunning) {
         if (server) {
             server.close();
         }
@@ -109,6 +111,13 @@ async function start() {
     await startSocketServer();
     const options: SpawnOptions = { cwd: process.cwd(), env: process.env, detached: true, stdio: 'inherit' };
     proc = spawn(process.execPath, [testFile], options);
+    proc.on('message', (msg) => {
+        if (msg === 'doNotKill') {
+            shouldKillAfterRunning = false;
+        } else if (msg === 'killAfterRunning') {
+            shouldKillAfterRunning = true;
+        }
+    })
     proc.once('close', end);
 }
 
