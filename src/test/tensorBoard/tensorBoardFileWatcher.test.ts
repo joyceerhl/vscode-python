@@ -6,12 +6,11 @@ import { IWorkspaceService } from '../../client/common/application/types';
 import { sleep } from '../../client/common/utils/async';
 import { TensorBoardFileWatcher } from '../../client/tensorBoard/tensorBoardFileWatcher';
 import { TensorBoardPrompt } from '../../client/tensorBoard/tensorBoardPrompt';
-import { initialize } from '../initialize';
-import { workspacePath } from '../standardTest';
+import { EXTENSION_ROOT_DIR_FOR_TESTS, initialize } from '../initialize';
 
 suite('TensorBoard file system watcher', async () => {
     const tfeventfileName = 'events.out.tfevents.1606887221.24672.162.v2';
-    const currentDirectory = workspacePath;
+    const currentDirectory = path.join(EXTENSION_ROOT_DIR_FOR_TESTS, 'src', 'test');
     let showNativeTensorBoardPrompt: sinon.SinonSpy;
     let eventFile: string | undefined;
     let eventFileDirectory: string | undefined;

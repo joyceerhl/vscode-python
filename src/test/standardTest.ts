@@ -19,7 +19,7 @@ function requiresPylanceExtensionToBeInstalled() {
 
 process.env.IS_CI_SERVER_TEST_DEBUGGER = '';
 process.env.VSC_PYTHON_CI_TEST = '1';
-export const workspacePath = process.env.CODE_TESTS_WORKSPACE
+const workspacePath = process.env.CODE_TESTS_WORKSPACE
     ? process.env.CODE_TESTS_WORKSPACE
     : path.join(__dirname, '..', '..', 'src', 'test');
 const extensionDevelopmentPath = process.env.CODE_EXTENSIONS_PATH
