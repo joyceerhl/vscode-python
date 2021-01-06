@@ -14,6 +14,7 @@ import { isTestExecution } from '../common/constants';
 // prevent a ReferenceError being thrown.
 // eslint-disable-next-line import/order
 import { Terminal } from 'xterm';
+import { traceInfo } from '../common/logger';
 
 @injectable()
 export class TensorBoardTerminalListener implements IExtensionSingleActivationService {
@@ -93,6 +94,12 @@ export class TensorBoardTerminalListener implements IExtensionSingleActivationSe
             this.complete();
             return;
         }
+        traceInfo(`Received data ${e.data}`);
+        traceInfo(
+            `Current buffer contents are ${this.terminal?.buffer.active
+                .getLine(this.terminal.buffer.active.cursorY)
+                ?.translateToString()}`,
+        );
         // If the user is entering one character at a time, we'll need to buffer individual characters
         // and handle escape sequences which manipulate the position of the cursor in the buffer
         this.terminal?.write(e.data);
