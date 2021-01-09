@@ -733,3 +733,27 @@ export namespace notebook {
         priority?: number
     ): NotebookCellStatusBarItem;
 }
+
+declare module 'vscode' {
+    // #region Terminal data write event https://github.com/microsoft/vscode/issues/78502
+    export interface TerminalDataWriteEvent {
+        /**
+         * The [terminal](#Terminal) for which the data was written.
+         */
+        readonly terminal: Terminal;
+        /**
+         * The data being written.
+         */
+        readonly data: string;
+    }
+    namespace window {
+        /**
+         * An event which fires when the terminal's child pseudo-device is written to (the shell).
+         * In other words, this provides access to the raw data stream from the process running
+         * within the terminal, including VT sequences.
+         */
+        export const onDidWriteTerminalData: Event<TerminalDataWriteEvent>;
+    }
+
+    // #endregion
+}
