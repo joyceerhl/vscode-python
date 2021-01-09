@@ -19,6 +19,8 @@ suite('Smoke Test: TensorBoard terminal listener', () => {
     const requirementsTxtFile = path.join(path.resolve('.'), 'requirements.txt');
     let pythonInterpreter: PythonEnvironment | undefined;
     suiteSetup(async function () {
+        this.timeout(600_000);
+
         if (!IS_SMOKE_TEST) {
             return this.skip();
         }
@@ -75,7 +77,6 @@ suite('Smoke Test: TensorBoard terminal listener', () => {
         return undefined;
     });
     setup(async function () {
-        this.timeout(600_000);
         await initializeTest();
     });
     suiteTeardown(closeActiveWindows);
