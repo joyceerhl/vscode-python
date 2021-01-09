@@ -79,7 +79,7 @@ suite('Smoke Test: TensorBoard terminal listener', () => {
     });
     test('With terminal listener', async () => {
         // Opt into tensorboard support
-        const experimentsConfig = vscode.workspace.getConfiguration('python.experiments', null);
+        const experimentsConfig = vscode.workspace.getConfiguration('python', null);
         await experimentsConfig.update('experiments.optInto', ['nativeTensorBoard'], true);
         const stopwatch = new StopWatch();
         await spewOutputToTerminal();
