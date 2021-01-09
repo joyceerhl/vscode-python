@@ -87,7 +87,7 @@ suite('Smoke Test: TensorBoard terminal listener', () => {
         const terminal = vscode.window.createTerminal();
         const venvCreate = ['-m', 'venv', '.venv'];
         await sendCommandAndWait(terminal, pythonInterpreter?.path || 'python', venvCreate);
-        await sendCommandAndWait(terminal, pythonInterpreter?.path || 'python', [
+        await sendCommandAndWait(terminal, path.join(path.resolve('.'), '.venv', 'Scripts', 'python.exe'), [
             '-m',
             'pip',
             'install',
