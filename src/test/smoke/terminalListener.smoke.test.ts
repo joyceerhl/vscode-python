@@ -74,7 +74,10 @@ suite('Smoke Test: TensorBoard terminal listener', () => {
         fse.writeFileSync(requirementsTxtFile, requirements);
         return undefined;
     });
-    setup(initializeTest);
+    setup(async function () {
+        this.timeout(600_000);
+        await initializeTest();
+    });
     suiteTeardown(closeActiveWindows);
     teardown(closeActiveWindows);
 
