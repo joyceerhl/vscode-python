@@ -69,7 +69,7 @@ export interface ICondaService {
     getCondaEnvironment(interpreterPath: string): Promise<CondaEnvironmentInfo | undefined>;
 }
 
-export const IInterpreterService = Symbol('IInterpreterService');
+export const IInterpreterService = Symbol.for('IInterpreterService');
 export interface IInterpreterService {
     onDidChangeInterpreterConfiguration: Event<Uri | undefined>;
     onDidChangeInterpreter: Event<void>;

@@ -12,15 +12,20 @@ import { traceVerbose } from '../../client/common/logger';
 import { IFileSystem } from '../../client/common/platform/types';
 import { Deferred, createDeferred } from '../../client/common/utils/async';
 import * as internalScripts from '../../client/common/process/internal/scripts';
+import { IInterpreterService } from '../../client/interpreter/contracts';
+import { PythonEnvironment } from '../../client/pythonEnvironments/info';
 
 suite('Smoke Test: TensorBoard terminal listener', () => {
     const requirementsTxtFile = path.join(path.resolve('.'), 'requirements.txt');
+    let pythonInterpreter: PythonEnvironment | undefined;
     suiteSetup(async function () {
         if (!IS_SMOKE_TEST) {
             return this.skip();
         }
         await verifyExtensionIsAvailable(JUPYTER_EXTENSION_ID);
-        await initialize();
+        const { serviceManager } = await initialize();
+        const interpreterService = serviceManager.get<IInterpreterService>(IInterpreterService);
+        pythonInterpreter = await interpreterService.getActiveInterpreter();
         await setAutoSaveDelayInWorkspaceRoot(1);
         const requirements = `
     absl-py==0.11.0
@@ -72,6 +77,25 @@ suite('Smoke Test: TensorBoard terminal listener', () => {
     setup(initializeTest);
     suiteTeardown(closeActiveWindows);
     teardown(closeActiveWindows);
+
+    async function spewOutputToTerminal() {
+        // Assumption: terminal listener isn't going to be a problem except
+        // when the user's workflow is terminal-bound
+        // Idea: one common scenario for Python extension users is to install
+        // a bunch of packages. See how slow this gets with terminal listening
+        // turned on
+        const terminal = vscode.window.createTerminal();
+        const venvCreate = ['-m', 'venv', '.venv'];
+        await sendCommandAndWait(terminal, pythonInterpreter?.path || 'python', venvCreate);
+        await sendCommandAndWait(terminal, pythonInterpreter?.path || 'python', [
+            '-m',
+            'pip',
+            'install',
+            '-r',
+            'requirements.txt',
+        ]);
+    }
+
     test('Without terminal listener', async () => {
         const stopwatch = new StopWatch();
         await spewOutputToTerminal();
@@ -177,16 +201,4 @@ async function sendCommandAndWait(terminal: vscode.Terminal, command: string, ar
         cleanupCallback();
         state.dispose();
     }
-}
-
-async function spewOutputToTerminal() {
-    // Assumption: terminal listener isn't going to be a problem except
-    // when the user's workflow is terminal-bound
-    // Idea: one common scenario for Python extension users is to install
-    // a bunch of packages. See how slow this gets with terminal listening
-    // turned on
-    const terminal = vscode.window.createTerminal();
-    const venvCreate = ['-m', 'venv', '.venv'];
-    await sendCommandAndWait(terminal, 'python', venvCreate);
-    await sendCommandAndWait(terminal, 'python', ['-m', 'pip', 'install', '-r', 'requirements.txt']);
 }
