@@ -6,6 +6,7 @@ import {
     CodeActionContext,
     CodeLens,
     Command,
+    commands,
     CompletionItem,
     CompletionList,
     Diagnostic,
@@ -28,11 +29,13 @@ import {
     TextDocumentContentChangeEvent,
     TextEdit,
     Uri,
+    workspace,
     WorkspaceEdit,
 } from 'vscode';
 import { NotebookCell, NotebookConcatTextDocument, NotebookDocument } from 'vscode-proposed';
 import { IVSCodeNotebook } from '../../common/application/types';
 import { IFileSystem } from '../../common/platform/types';
+import { InteractiveWindowConcatDocument } from './interactiveWindowConcatDocument';
 import { NotebookConcatDocument } from './notebookConcatDocument';
 import { SafeNotebookDocument } from './safeNotebookDocument';
 
@@ -650,7 +653,7 @@ export class NotebookConverter implements Disposable {
 
     private onDidOpenNotebook(doc: NotebookDocument) {
         const safeDoc = new SafeNotebookDocument(doc);
-        if (this.notebookFilter.test(safeDoc.fileName)) {
+        if (this.notebookFilter.test(safeDoc.fileName) || doc.viewType === 'interactive') {
             this.getTextDocumentWrapper(safeDoc.uri);
         }
     }
@@ -688,5 +691,27 @@ export class NotebookConverter implements Disposable {
 
     private getConcatDocument(cell: TextDocument | Uri): NotebookConcatTextDocument | undefined {
         return this.getTextDocumentWrapper(cell)?.concatDocument;
+    }
+
+    private async getTextDocumentWrapperForInteractiveWindow(
+        doc: NotebookDocument,
+    ): Promise<InteractiveWindowConcatDocument | undefined> {
+        const key = NotebookConverter.getDocumentKey(doc.uri);
+        let result = this.activeDocuments.get(key);
+        if (!result) {
+            // Find the associated input URI for this NotebookDocument
+            const { inputUri } = (await commands.executeCommand('interactive.open', doc.uri)) as {
+                inputUri: Uri;
+                notebookUri: Uri;
+            };
+            const inputDocument = workspace.textDocuments.find(
+                (textDocument) => textDocument.uri.toString() === inputUri.toString(),
+            );
+            if (!inputDocument) {
+                throw new Error('');
+            }
+            result = new InteractiveWindowConcatDocument(doc, inputDocument, this.api, this.cellSelector);
+        }
+        return result; // TODO: Define INotebookConcatDocument interface
     }
 }
