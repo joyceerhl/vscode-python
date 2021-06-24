@@ -22,6 +22,7 @@ import { IVSCodeNotebook } from '../../common/application/types';
 import { IDisposable } from '../../common/types';
 import { PYTHON_LANGUAGE } from '../../common/constants';
 import { SafeNotebookDocument } from './safeNotebookDocument';
+import { InteractiveConcatTextDocument } from './interactiveWindowConcatDocument';
 
 const NotebookConcatPrefix = '_NotebookConcat_';
 
@@ -120,7 +121,7 @@ export class NotebookConcatDocument implements TextDocument, IDisposable {
 
     private _notebook: SafeNotebookDocument;
 
-    constructor(notebook: NotebookDocument, notebookApi: IVSCodeNotebook, selector: DocumentSelector) {
+    constructor(notebook: NotebookDocument, notebookApi: IVSCodeNotebook, selector: DocumentSelector, inputDocument?: TextDocument) {
         const dir = path.dirname(notebook.uri.fsPath);
         // Create a safe notebook document so that we can handle both >= 1.56 vscode API and < 1.56
         // when vscode stable is 1.56 and both Python release and insiders can update to that engine version we
@@ -130,7 +131,11 @@ export class NotebookConcatDocument implements TextDocument, IDisposable {
         // that the caller doesn't remove diagnostics for this document.
         this.dummyFilePath = path.join(dir, `${NotebookConcatPrefix}${uuid().replace(/-/g, '')}.py`);
         this.dummyUri = Uri.file(this.dummyFilePath);
-        this.concatDocument = notebookApi.createConcatTextDocument(notebook, selector);
+        if (inputDocument !== undefined) {
+            this.concatDocument = new InteractiveConcatTextDocument(notebook, inputDocument, notebookApi);
+        } else {
+            this.concatDocument = notebookApi.createConcatTextDocument(notebook, selector);
+        }
         this.onDidChangeSubscription = this.concatDocument.onDidChange(this.onDidChange, this);
         this.updateCellTracking();
     }
